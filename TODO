@@ -1,0 +1,33 @@
+-- StructuredInstance
+
+- constructor from input stream, adapt to different domains by initialising different skeletons
+
+-- StructuredDomain
+
+- Skeleton is built by StructuredInstance during its initialisation
+
+-- Node
+
+- flexible number of state transition networks requires storing a dynamic set of layer activations
+
+- must be able to deal with a generic form of node output/target
+
+-- DataSet
+
+- read configuration parameter to trigger building structured instances differently according to the domain
+
+- methods to read from input streams depending on the domain
+
+-- DPAG
+
+- stores just useful declarations for dealing with vertex and edge traversals, leave graph comparison functions
+to more specialised applications, e.g. search in the space of graphs with an oracle
+
+-- Recursive NNs
+
+- a single, non templatised, implementation able to build and compute with a dynamic set of state transition functions
+  according to the domain
+
+- hidden/output activation functions have their own polymorphic hierarchy with the error minimisation procedure too
+
+- must be able to deal with a generic form of super-source output/target
