@@ -25,7 +25,7 @@ OBJECTS = $(SOURCES:.cpp=.o)
 all: $(OBJECTS)
 
 clean:
-	rm -rf *.o
+	rm -rf *.o *~
 	$(MAKE) clean -C test
 
 # unit tests
