@@ -1,6 +1,9 @@
 #ifndef _STRUCTURED_DOMAIN_H_
 #define _STRUCTURED_DOMAIN_H_
 
+#include "DPAG.h"
+#include <vector>
+
 /*
 
   Define aspects related to the representation of structured domains.
@@ -66,7 +69,7 @@ class Skeleton {
   */
   int _norient; // number of orientations
   DPAG* _orientations; // each orientation can be defined as a DPAG
-  vector<int>* _top_orders;
+  std::vector<int>* _top_orders;
  
  public:
   Skeleton(Domain);
@@ -77,6 +80,7 @@ class Skeleton {
 
   // A skeleton is defined for a structured instance, which must
   // be able to set its internal parameters
+  // forward declaration
   class StructuredInstance;
   friend class StructuredInstance;
 };
