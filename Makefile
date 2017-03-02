@@ -5,6 +5,7 @@
 #############################
 
 DEFINES  = -DDEBUG
+# Dependency on Boost library
 INCLUDES = -I/usr/include/boost
 WARNINGS = -Wall
 CODEOPT  = # -O3
@@ -21,7 +22,7 @@ SOURCES = DPAG.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # main targets
-# just compile into objects until we have some mains
+# NOTE: just compile into objects until we have some mains
 all: $(OBJECTS)
 
 clean:
@@ -29,7 +30,7 @@ clean:
 	$(MAKE) clean -C test
 
 # unit tests
-## build unit tests
+## build unit tests into one single command
 tests:
 	$(MAKE) rnn_unit -C test
 
