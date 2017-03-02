@@ -43,7 +43,7 @@ bool equal(const DPAG& g1, const DPAG& g2) {
   return true;
 }
 
-unsigned int get_max_indegree(const DPAG& dpag) {
+unsigned int max_indegree(const DPAG& dpag) {
   vertexIt v_i, v_end;
   
   int max_indegree = 0;
@@ -56,7 +56,7 @@ unsigned int get_max_indegree(const DPAG& dpag) {
   return max_indegree;
 }
 
-unsigned int get_max_outdegree(const DPAG& dpag) {
+unsigned int max_outdegree(const DPAG& dpag) {
   //VertexId vertex_id = boost::get(boost::vertex_index, dpag);
   vertexIt v_i, v_end;
   

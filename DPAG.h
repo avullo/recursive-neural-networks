@@ -42,8 +42,8 @@ typedef boost::graph_traits<DPAG>::adjacency_iterator adjIter;
 bool equal(const DPAG&, const DPAG&);
 
 // Functions to return maximum indegree/outdegree of a given graph
-unsigned int get_max_indegree(const DPAG&);
-unsigned int get_max_outdegree(const DPAG&);
+unsigned int max_indegree(const DPAG&);
+unsigned int max_outdegree(const DPAG&);
 
 // Function to produce a topological ordering of the nodes of a DPAG
 std::vector<Vertex_d> topological_sort(const DPAG&);
