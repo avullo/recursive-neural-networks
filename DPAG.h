@@ -46,7 +46,7 @@ unsigned int max_indegree(const DPAG&);
 unsigned int max_outdegree(const DPAG&);
 
 // Function to produce a topological ordering of the nodes of a DPAG
-std::vector<Vertex_d> topological_sort(const DPAG&);
+std::vector<int> topological_sort(const DPAG&);
   
 // print DPAG to output stream
 void print(const DPAG& dpag, std::ostream&);

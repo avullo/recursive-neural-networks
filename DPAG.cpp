@@ -70,14 +70,21 @@ unsigned int max_outdegree(const DPAG& dpag) {
   return max_outdegree;
 }
 
-std::vector<Vertex_d> topological_sort(DPAG& dpag) {
+std::vector<int> topological_sort(const DPAG& dpag) {
   std::vector<Vertex_d> reverse_linear_ordering;
   boost::topological_sort(dpag, std::back_inserter(reverse_linear_ordering));
 
   // The previous call produce a reverse topological ordering,
   // so we must perform the following...
-  std::vector<Vertex_d> linear_ordering(reverse_linear_ordering.rbegin(),
-					reverse_linear_ordering.rend());
+  // std::vector<Vertex_d> linear_ordering(reverse_linear_ordering.rbegin(),
+  // 					reverse_linear_ordering.rend());
+
+  vector<int> linear_ordering;
+  VertexId vertex_id = boost::get(boost::vertex_index, dpag);
+  // TODO: use iterators
+  for(int i=reverse_linear_ordering.size()-1; i>=0; --i) {
+    linear_ordering.push_back(vertex_id[reverse_linear_ordering[i]]);
+  }
   return linear_ordering;
 }
 
