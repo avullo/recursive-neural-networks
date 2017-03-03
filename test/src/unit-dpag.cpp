@@ -142,23 +142,24 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
 
   SECTION("equal - same skeleton") {
     DPAG sequence1 = dg.make_sequence(T);
-    CHECK(equal(sequence, sequence1));
-
     DPAG dpag1 = dg.make_dpag("data/test_dpag.gph");
-    CHECK(equal(dpag, dpag1));
-
     DPAG grid1 = dg.make_grid(N);
-    CHECK(equal(grid, grid1));
-
-    SECTION("different edge properties") {
-      DPAG sequence2 = dg.make_sequence(T);
-
-      VertexId vertex_id = boost::get(boost::vertex_index, sequence2);
-      Vertex_d v = boost::vertex(3, sequence2);
-      outIter out_i = boost::out_edges(v, sequence2).first;
-      EdgeId edge_id = boost::get(boost::edge_index, sequence2);
-      edge_id[*out_i] = 2;
-      CHECK_FALSE(equal(sequence, sequence2));
+    
+    SECTION("same edge properties") {
+      CHECK(equal(sequence, sequence1));  
+      CHECK(equal(dpag, dpag1));
+      CHECK(equal(grid, grid1));
+      
+      SECTION("different edge properties") {
+	DPAG sequence2 = dg.make_sequence(T);
+	
+	VertexId vertex_id = boost::get(boost::vertex_index, sequence2);
+	Vertex_d v = boost::vertex(3, sequence2);
+	outIter out_i = boost::out_edges(v, sequence2).first;
+	EdgeId edge_id = boost::get(boost::edge_index, sequence2);
+	edge_id[*out_i] = 2;
+	CHECK_FALSE(equal(sequence, sequence2));
+      }
     }
   }
 
@@ -256,10 +257,13 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
       
       CHECK(top_sort[0] == 0);
       CHECK(top_sort[1] == 1);
-      // TODO:: cannot check with complex expressions
-      CHECK(0);
-      // CHECK(top_sort[2] == 2 || top_sort[2] == 3);
-      // CHECK(top_sort[3] == 2 || top_sort[3] == 3);
+      
+      // NOTE: cannot check with complex expressions
+      // Is there a better way?
+      CHECK(top_sort[2] >= 2);
+      CHECK(top_sort[2] <= 3);
+      CHECK(top_sort[3] >= 2);
+      CHECK(top_sort[3] <= 3);
     }
   }
 
