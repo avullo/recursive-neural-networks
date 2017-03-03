@@ -1,10 +1,20 @@
--- Test suite
+X Test suite
 
 - use Catch or Boost frameworks
+
+X DPAG
+
+- stores just useful declarations for dealing with vertex and edge traversals and basic functions,
+  leave graph comparison functions to more specialised applications, e.g. search in the space of
+  graphs with an oracle
+
+- test suite
 
 -- StructuredInstance
 
 - constructor from input stream, adapt to different domains by initialising different skeletons
+
+- test suite
 
 -- StructuredDomain
 
@@ -21,13 +31,6 @@
 - read configuration parameter to trigger building structured instances differently according to the domain
 
 - methods to read from input streams depending on the domain
-
--- DPAG
-
-X stores just useful declarations for dealing with vertex and edge traversals, leave graph comparison functions
-to more specialised applications, e.g. search in the space of graphs with an oracle
-
-- tests
 
 -- Recursive NNs
 
