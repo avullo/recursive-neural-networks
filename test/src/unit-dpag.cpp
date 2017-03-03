@@ -94,7 +94,7 @@ public:
   }
 };
   
-TEST_CASE("Various data structures", "[dpag]") {
+TEST_CASE("DPAG functions with various data structures", "[dpag]") {
   //Vertex_d v;
   vertexIt v_i, v_end;
   outIter out_i, out_end;
@@ -113,7 +113,29 @@ TEST_CASE("Various data structures", "[dpag]") {
   DPAG grid = dg.make_grid(N);
   CHECK(boost::num_vertices(grid) == N);
 
-  SECTION("data structures are different") {
+  SECTION("equal - same skeleton") {
+    DPAG sequence1 = dg.make_sequence(T);
+    CHECK(equal(sequence, sequence1));
+
+    DPAG dpag1 = dg.make_dpag("../data/test_dpag.gph");
+    CHECK(equal(dpag, dpag1));
+
+    DPAG grid1 = dg.make_grid(N);
+    CHECK(equal(grid, grid1));
+
+    SECTION("different edge properties") {
+      DPAG sequence2 = dg.make_sequence(T);
+
+      VertexId vertex_id = boost::get(boost::vertex_index, sequence2);
+      Vertex_d v = boost::vertex(3, sequence2);
+      outIter out_i = boost::out_edges(v, sequence2).first;
+      EdgeId edge_id = boost::get(boost::edge_index, sequence2);
+      edge_id[*out_i] = 2;
+      CHECK_FALSE(equal(sequence, sequence2));
+    }
+  }
+
+  SECTION("equal - different skeleton") {
     CHECK_FALSE(equal(sequence, dpag));
     CHECK_FALSE(equal(sequence, grid));
     CHECK_FALSE(equal(dpag, grid));
@@ -147,5 +169,11 @@ TEST_CASE("Various data structures", "[dpag]") {
 	CHECK(in_i == in_end);
       }
     }
+  }
+
+  SECTION("DPAG connectivity") {
+  }
+
+  SECTION("Grid connectivity") {
   }
 }
