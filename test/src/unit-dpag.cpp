@@ -141,7 +141,7 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
     CHECK_FALSE(equal(dpag, grid));
   }
 
-  SECTION("sequence connectivity") {
+  SECTION("Linear sequence") {
     CHECK(max_indegree(sequence) == 1);
     CHECK(max_outdegree(sequence) == 1);
     
@@ -169,11 +169,24 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
 	CHECK(in_i == in_end);
       }
     }
+
+    SECTION("topological sort") {
+      std::vector<int> top_sort = topological_sort(sequence);
+      CHECK(top_sort.size() == T);
+      for(int i=0; i<T; ++i)
+	CHECK(top_sort[i] == T-i-1);
+    }
   }
 
-  SECTION("DPAG connectivity") {
+  SECTION("DPAG") {
+
+    SECTION("topological sort") {
+    }
   }
 
-  SECTION("Grid connectivity") {
+  SECTION("Grid") {
+
+    SECTION("topological sort") {
+    }
   }
 }
