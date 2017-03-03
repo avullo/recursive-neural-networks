@@ -11,32 +11,41 @@ bool equal(const DPAG& g1, const DPAG& g2) {
   vertexIt v_i, v_end;
   outIter out_i, out_i1, out_end, out_end1;
   adjIter adj_i, adj_i1, adj_end, adj_end1;
-
+  cEdgeId edge_id1 = boost::get(boost::edge_index, g1);
+  cEdgeId edge_id2 = boost::get(boost::edge_index, g2);
+  
   for(boost::tie(v_i, v_end) = boost::vertices(g1); v_i!=v_end; ++v_i) {
     int num_nodes_g1 = boost::out_degree(*v_i, g1), num_nodes_g2 = boost::out_degree(boost::vertex(vertex_id[*v_i], g2), g2);
     if(num_nodes_g1 != num_nodes_g2)
       return false;
     else {
-      int index = 0;
-      vector<int> children_1(num_nodes_g1);//, children_2;
-      for(boost::tie(out_i, out_end)=boost::out_edges(*v_i, g1);
-	  out_i!=out_end; ++out_i) {
-	children_1[index++] = boost::target(*out_i, g1);
-	//children_1.push_back(boost::target(*out_i, g1));
-      }
-      for(boost::tie(out_i, out_end)=boost::out_edges(boost::vertex(vertex_id[*v_i], g2), g2);
-	  out_i!=out_end; ++out_i) {
-	//if(find(children_1.begin(), children_1.end(), boost::target(*out_i, g2)) == children_1.end())
-	int target_g2 = boost::target(*out_i, g2);
-	bool found = false;
-	for(int i=0; i<children_1.size(); i++) {
-	  if(target_g2 == children_1[i]) {
-	    found = true;
-	    break;
-	  }
-	}
-	if(!found)
+      // int index = 0;
+      // vector<int> children_1(num_nodes_g1);//, children_2;
+      // for(boost::tie(out_i, out_end)=boost::out_edges(*v_i, g1);
+      // 	  out_i!=out_end; ++out_i) {
+      // 	children_1[index++] = boost::target(*out_i, g1);
+      // 	//children_1.push_back(boost::target(*out_i, g1));
+      // }
+      // for(boost::tie(out_i, out_end)=boost::out_edges(boost::vertex(vertex_id[*v_i], g2), g2);
+      // 	  out_i!=out_end; ++out_i) {
+      // 	//if(find(children_1.begin(), children_1.end(), boost::target(*out_i, g2)) == children_1.end())
+      // 	int target_g2 = boost::target(*out_i, g2);
+      // 	bool found = false;
+      // 	for(int i=0; i<children_1.size(); i++) {
+      // 	  if(target_g2 == children_1[i]) {
+      // 	    found = true;
+      // 	    break;
+      // 	  }
+      // 	}
+      // 	if(!found)
+      // 	  return false;
+      // }
+      for(boost::tie(out_i, out_end)=boost::out_edges(*v_i, g1); out_i!=out_end; ++out_i) {
+	if(not boost::edge(boost::source(*out_i, g1), boost::target(*out_i, g1), g2).second)
 	  return false;
+	Edge_d e = boost::edge(boost::source(*out_i, g1), boost::target(*out_i, g1), g2).first;
+	if(edge_id2[e] !=
+	   edge_id1[*out_i]) return false;
       }
     }
   }
