@@ -106,6 +106,17 @@ public:
   DPAG make_grid(uint N) {
     DPAG grid(N);
 
+    // build a nwse grid
+    for(uint i=0; i<N; ++i) {
+      for(uint j=0; j<N; ++j) {
+	int edge_index = 0;
+	if(j<N-1)
+	  boost::add_edge(i*N+j, i*N+j+1, EdgeProperty(edge_index++), grid);
+	if(i<N-1)
+	  boost::add_edge(i*N+j, (i+1)*N+j, EdgeProperty(edge_index++), grid);
+      }
+    }
+
     return grid;
   }
 };
@@ -127,7 +138,7 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
   
   int N = T;
   DPAG grid = dg.make_grid(N);
-  CHECK(boost::num_vertices(grid) == N);
+  CHECK(boost::num_vertices(grid) == N*N);
 
   SECTION("equal - same skeleton") {
     DPAG sequence1 = dg.make_sequence(T);
@@ -189,7 +200,7 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
     SECTION("topological sort") {
       std::vector<int> top_sort = topological_sort(sequence);
       CHECK(top_sort.size() == boost::num_vertices(sequence));
-      for(int i=0; i<boost::num_vertices(sequence); ++i)
+      for(uint i=0; i<boost::num_vertices(sequence); ++i)
 	CHECK(top_sort[i] == T-i-1);
     }
   }
@@ -253,8 +264,56 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
   }
 
   SECTION("Grid") {
+    CHECK(max_indegree(grid) == 2);
+    CHECK(max_outdegree(grid) == 2);
 
+    VertexId vertex_id = boost::get(boost::vertex_index, grid);
+    EdgeId edge_id = boost::get(boost::edge_index, grid);
+
+    Vertex_d v = boost::vertex(0, grid);
+    boost::tie(out_i, out_end)=boost::out_edges(v, grid);
+    boost::tie(in_i, in_end)=boost::in_edges(v, grid);
+
+    v = boost::vertex(0, grid);
+    boost::tie(out_i, out_end)=boost::out_edges(v, grid);
+    boost::tie(in_i, in_end)=boost::in_edges(v, grid);
+    CHECK(in_i == in_end);
+    CHECK(boost::target(*out_i, grid) == 1);
+    CHECK(edge_id[*out_i] == 0);
+    CHECK(boost::target(*(++out_i), grid) == 10);
+    CHECK(edge_id[*out_i] == 1);
+    CHECK(++out_i == out_end);
+
+    v = boost::vertex(9, grid);
+    boost::tie(out_i, out_end)=boost::out_edges(v, grid);
+    boost::tie(in_i, in_end)=boost::in_edges(v, grid);
+    CHECK(boost::source(*in_i, grid) == 8);
+    CHECK(++in_i == in_end);
+    CHECK(boost::target(*out_i, grid) == 19);
+    CHECK(edge_id[*out_i] == 0);
+    CHECK(++out_i == out_end);
+
+    v = boost::vertex(14, grid);
+    boost::tie(out_i, out_end)=boost::out_edges(v, grid);
+    boost::tie(in_i, in_end)=boost::in_edges(v, grid);
+    CHECK(boost::source(*in_i, grid) == 4);
+    CHECK(boost::source(*(++in_i), grid) == 13);
+    CHECK(++in_i == in_end);
+    CHECK(boost::target(*out_i, grid) == 15);
+    CHECK(edge_id[*out_i] == 0);
+    CHECK(boost::target(*(++out_i), grid) == 24);
+    CHECK(edge_id[*out_i] == 1);
+    CHECK(++out_i == out_end);
+    
     SECTION("topological sort") {
+      vector<int> top_sort = topological_sort(grid);
+
+      CHECK(top_sort.size() == N*N);
+      CHECK(top_sort[0] == 0);
+      CHECK(top_sort[N*N-1] == N*N-1);
+
+      // TODO: check other relative orders
+      CHECK(0);
     }
   }
 }
