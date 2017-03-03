@@ -75,13 +75,29 @@ public:
   }
   
   DPAG make_dpag(const char* fname) {
-    // ifstream is(fname);
-    // if(!is) {
-    //   fprintf(stderr, "Could not open file %s\n", fname);
-    //   exit(1);
-    // }
+    ifstream is(fname);
+    if(!is) {
+      fprintf(stderr, "Could not open file %s\n", fname);
+      exit(1);
+    }
 
-    DPAG d;
+    string line;
+    getline(is, line);
+    istringstream iss(line);
+    int V;
+    iss >> V;
+    DPAG d(V);
+    
+    for(int i=0; i<V; ++i) {
+      getline(is, line);
+      istringstream iss1(line);
+      int v;
+      iss1 >> v;
+      int target;
+      int eindex = 0;
+      while(iss1 >> target)
+	boost::add_edge(v, target, EdgeProperty(eindex++), d);
+    }
 
     return d;
   }
@@ -107,7 +123,7 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
   
   CHECK(boost::num_vertices(sequence) == T);
 
-  DPAG dpag = dg.make_dpag("../data/test_dpag.gph");
+  DPAG dpag = dg.make_dpag("data/test_dpag.gph");
   
   int N = T;
   DPAG grid = dg.make_grid(N);
@@ -117,7 +133,7 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
     DPAG sequence1 = dg.make_sequence(T);
     CHECK(equal(sequence, sequence1));
 
-    DPAG dpag1 = dg.make_dpag("../data/test_dpag.gph");
+    DPAG dpag1 = dg.make_dpag("data/test_dpag.gph");
     CHECK(equal(dpag, dpag1));
 
     DPAG grid1 = dg.make_grid(N);
@@ -141,7 +157,7 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
     CHECK_FALSE(equal(dpag, grid));
   }
 
-  SECTION("Linear sequence") {
+  SECTION("linear sequence") {
     CHECK(max_indegree(sequence) == 1);
     CHECK(max_outdegree(sequence) == 1);
     
@@ -172,15 +188,67 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
 
     SECTION("topological sort") {
       std::vector<int> top_sort = topological_sort(sequence);
-      CHECK(top_sort.size() == T);
-      for(int i=0; i<T; ++i)
+      CHECK(top_sort.size() == boost::num_vertices(sequence));
+      for(int i=0; i<boost::num_vertices(sequence); ++i)
 	CHECK(top_sort[i] == T-i-1);
     }
   }
 
   SECTION("DPAG") {
+    CHECK(max_indegree(dpag) == 2);
+    CHECK(max_outdegree(dpag) == 2);
+
+    VertexId vertex_id = boost::get(boost::vertex_index, dpag);
+    EdgeId edge_id = boost::get(boost::edge_index, dpag);
+
+    Vertex_d v = boost::vertex(0, dpag);
+    boost::tie(out_i, out_end)=boost::out_edges(v, dpag);
+    boost::tie(in_i, in_end)=boost::in_edges(v, dpag);
+
+    CHECK(in_i == in_end);
+    CHECK(boost::target(*out_i, dpag) == 1);
+    CHECK(edge_id[*out_i] == 0);
+    CHECK(boost::target(*(++out_i), dpag) == 3);
+    CHECK(edge_id[*out_i] == 1);
+    CHECK(++out_i == out_end);
+
+    v = boost::vertex(1, dpag);
+    boost::tie(out_i, out_end)=boost::out_edges(v, dpag);
+    boost::tie(in_i, in_end)=boost::in_edges(v, dpag);
+    CHECK(boost::source(*in_i, dpag) == 0);
+    CHECK(++in_i == in_end);
+    CHECK(boost::target(*out_i, dpag) == 2);
+    CHECK(edge_id[*out_i] == 0);
+    CHECK(boost::target(*(++out_i), dpag) == 3);
+    CHECK(edge_id[*out_i] == 1);
+    CHECK(++out_i == out_end);
+
+    v = boost::vertex(2, dpag);
+    boost::tie(out_i, out_end)=boost::out_edges(v, dpag);
+    boost::tie(in_i, in_end)=boost::in_edges(v, dpag);
+    CHECK(boost::source(*in_i, dpag) == 1);
+    CHECK(++in_i == in_end);
+    CHECK(out_i == out_end);
+
+    v = boost::vertex(3, dpag);
+    boost::tie(out_i, out_end)=boost::out_edges(v, dpag);
+    boost::tie(in_i, in_end)=boost::in_edges(v, dpag);
+    CHECK(boost::source(*in_i, dpag) == 0);
+    CHECK(boost::source(*(++in_i), dpag) == 1);
+    CHECK(++in_i == in_end);
+    CHECK(out_i == out_end);
 
     SECTION("topological sort") {
+      vector<int> top_sort = topological_sort(dpag);
+      int V = boost::num_vertices(dpag);
+      CHECK(top_sort.size() == V);
+      
+      CHECK(top_sort[0] == 0);
+      CHECK(top_sort[1] == 1);
+      // TODO:: cannot check with complex expressions
+      CHECK(0);
+      // CHECK(top_sort[2] == 2 || top_sort[2] == 3);
+      // CHECK(top_sort[3] == 2 || top_sort[3] == 3);
     }
   }
 
