@@ -312,8 +312,23 @@ TEST_CASE("DPAG functions with various data structures", "[dpag]") {
       CHECK(top_sort[0] == 0);
       CHECK(top_sort[N*N-1] == N*N-1);
 
-      // TODO: check other relative orders
-      CHECK(0);
+      // check other relative orders
+      // copy(top_sort.begin(), top_sort.end(), ostream_iterator<int>(cout, " "));
+
+      // information flows NWSE
+      vector<int>::iterator it;
+      vector<int>::iterator it1;
+      vector<int>::iterator it2;
+      for(int i=0; i<N-1; ++i) {
+	const vector<int>::size_type j = find(top_sort.begin(), top_sort.end(), i*N+i) - top_sort.begin();
+	const vector<int>::size_type j1 = find(top_sort.begin(), top_sort.end(), i*N+i+1) - top_sort.begin();
+	const vector<int>::size_type j2 = find(top_sort.begin(), top_sort.end(), (i+1)*N+i) - top_sort.begin();
+
+	CHECK(j < j1);
+	CHECK(j < j2);
+	CHECK(j2 < j1);
+      }
+      
     }
   }
 }
