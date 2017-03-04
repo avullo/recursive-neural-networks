@@ -7,20 +7,27 @@ The basic theory is described in [1], which defines the framework for learning d
 
 The software here implements an adaptation of recursive neural networks designed to process undirected graphs, possibly containing cycles. It allows learning of non-causal relationships over many possible structured domains, thus constituting a useful generalisation of the original theory. 
 
-This software is a rewrite of the code I have implemented in support of my PhD and post-doc work while at the Univeristy of Firenze, University of California at Irvine and University College Dublin. It has been successfully applied in different problems related to structural bioinformatics, as described in [2,3,4].
+This software is a rewrite of the code I have implemented in support of my PhD and post-doc work while at the Univeristy of Firenze, University of California at Irvine and University College Dublin. It has been successfully applied in different problems related to structural bioinformatics, as described in [2,3,4,5].
 
 # Disclaimer
-
-This work aims to create a design and implementation of recursive neural networks that is better suited to be used by other people and integrated into external components, thus probably aspiring at becoming a library at some point.
+This work aims to create a design and implementation of recursive neural networks that is better suited to be used by other people and integrated into external components, thus probably aspiring at becoming a library at some point. The moment I write I feel a little bit ambitiuous and dare to say it might even have bindings in some other language as well. 
 
 It is work in progress and it's not usable at the moment. I am constantly adding new components until the design is complete. 
 
+# Dependencies
+This code relies upon the Boost Graph Library and the CATCH unit testing framework. The latter is included as third party component.
+
+# Installation
+The makefile provided is tailored to Linux environments with the GNU C++ compiler suite. It relies on the standard installation path of the Boost library headers.
+
 ## References
 
-[1] P. Frasconi, M. Gori and A. Sperduti. "A General Framework for Adaptive Processing of Data Structures", *IEEE Transactions on Neural Networks", 9:5, 768-786, 1998.
+[1] Frasconi P., Gori M. and Sperduti A.. "A General Framework for Adaptive Processing of Data Structures", *IEEE Transactions on Neural Networks*, 9:5, 768-786, 1998.
 
-[2]
+[2] Vullo A. and Frasconi P.. "Disulfide Connectivity Prediction Using Recursive Neural Networks and Evolutionary Information", *Bioinformatics*, 20(5), 653-659, 2004. 
 
-[3]
+[3] Pollastri G., Vullo A., Frasconi P. and Baldi P.. "Modular DAG-RNN Architectures for Assembling Coarse Protein Structures", *Journal of Computational Biology*, 13(3), 2006
 
-[4]
+[4] Ceroni A., Passerini A., Vullo A. and Frasconi P.. "DISULFIND: a disulfide bonding state and cystein connectity server". , *Nucleic Acid Research*, 34(2), W177-W181, 2006.
+
+[5] Baldi P., Cheng J., Vullo A. "Large-scale prediction of disulphide bond connectivity". In: Saul L.K., Weiss Y., Bottou L., editors. *Advances in Neural Information Processing Systems* 17; Cambridge, MA: MIT Press; 97–104, 2005.
