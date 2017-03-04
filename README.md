@@ -12,6 +12,8 @@ This software is a rewrite of the code I have implemented in support of my PhD a
 # Disclaimer
 This work aims to create a design and implementation of recursive neural networks that is better suited to be used by other people and integrated into external components, thus probably aspiring at becoming a library at some point. The moment I write I feel a little bit ambitiuous and dare to say it might even have bindings in some other language as well. 
 
+This at the moment has more of an educational purpose, both personal as I practice some useful techniques like refactoring, design patterns, TDD, and aimed at people willing to learn and use about this kind of learning approaches.
+
 It is work in progress and it's not usable at the moment. I am constantly adding new components until the design is complete. 
 
 # Dependencies
