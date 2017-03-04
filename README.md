@@ -9,7 +9,7 @@ The software here implements an adaptation of recursive neural networks designed
 
 This software is a rewrite of the code I have implemented in support of my PhD and post-doc work while at the Univeristy of Firenze, University of California at Irvine and University College Dublin. It has been successfully applied in different problems related to structural bioinformatics, as described in [2,3,4].
 
-# Desclaimer
+# Disclaimer
 
 This work aims to create a design and implementation of recursive neural networks that is better suited to be used by other people and integrated into external components, thus probably aspiring at becoming a library at some point.
 
