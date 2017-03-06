@@ -10,15 +10,28 @@ X DPAG
 
 - test suite
 
--- StructuredInstance
+-- Options
+
+- singleton pattern, add options and method as other development proceeds
+
+- read global configuration file/command line arguments (YAML or some other well supported format), look at Boost (reading configs/command line parameters)
+
+- test suite
+
+-- Instance
 
 - constructor from input stream, adapt to different domains by initialising different skeletons
+  domain and tranduction are taken from the global options instance
+
+- subclasses to create instances of particular domains, with factory method pattern
 
 - test suite
 
 -- StructuredDomain
 
-- Skeleton is built by StructuredInstance during its initialisation
+X declares useful literals for representing domains and transductions
+
+- test suite
 
 -- Node
 
