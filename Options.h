@@ -46,24 +46,17 @@ class Options {
     // global configurations file: default to cwd
     args.insert(std::make_pair(std::string("config"), std::string(".rnnrc")));
 
-    _usage = " [Options]\n"
+    _usage = "[Options]\n"
       "Options:\n"
       "\t-c <config file> (default is .rnnrc)\n";
   }
-
-public:
- 
-  class BadOptionSetting { // : public exception { // Why parse error?
-    std::string _error_string;
-
-  public:
-      BadOptionSetting(std::string what): 
-	      _error_string(what) {}
-
-      const char* explainError() const {
-        return _error_string.c_str();
-      }
-  };
+  
+ public:
+  
+  class BadOptionSetting: public std::logic_error { 
+ public:
+ BadOptionSetting(std::string what): logic_error(what) {}
+ };
 
   // static method to return the singleton
   static Options* instance();
@@ -77,10 +70,10 @@ public:
     
   // method to get/set parameters
   std::string get_parameter(std::string name) const {
-    std::map<string, string>::const_iterator it = args.find(name);
+    std::map<std::string, std::string>::const_iterator it = args.find(name);
     if(it != args.end())
       return (*it).second;
-    return string("");
+    return std::string("");
   }
   void set_parameter(std::string key, std::string value) {
     args.insert(make_pair(key, value));
