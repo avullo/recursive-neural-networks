@@ -1,18 +1,18 @@
-#include "require.h"
 #include "Options.h"
 
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <sstream>
 #include <iostream>
+#include <fstream>
 #include <string>
 using namespace std;
 
-void Options::parse_args(int argc, char* argv[]) 
-  throw(Options::BadOptionSetting) {
+#define PR(x) cout << #x << ": " << x << endl
 
-  // prepend program name to usage string
-  _usage = string(argv[0]) + " " + _usage;
+void Options::parse_args(int argc, char* argv[]) 
+  throw(BadOptionSetting) {
   
   // parse command line switches, search only for global configuration file option
   // derived classes will consider application specific flags
@@ -28,23 +28,24 @@ void Options::parse_args(int argc, char* argv[])
   map<string, string>::const_iterator it;
   it = args.find("config");
   if(it == args.end())
-    throw BadOptionSetting(string("Must specify global configuration file; use -c <config file> command line flag"));
+    throw BadOptionSetting("Must specify global configuration file; use -c <config file> command line flag");
 
   // read global configuration file and set globally visible parameters
   ifstream ifs((*it).second.c_str());
-  assure(ifs, (*it).second.c_str());
+  if(!ifs)
+    throw BadOptionSetting(string("Could not open ") + (*it).second.c_str());
   
   string line, dummy;
   while(getline(ifs, line)) {
     if(line[0] == '#') continue; // skip comments
 
-    int pos;
+    size_t pos;
     istringstream iss(line);
     
     pos = line.find("input_dimension");
     if(pos != string::npos) {
-      iss >> dummy >> _input_dimension;
-      assert(_input_dimension > 0);
+      iss >> dummy >> _input_dim;
+      assert(_input_dim > 0);
       continue;
     }
     
@@ -84,7 +85,7 @@ void Options::parse_args(int argc, char* argv[])
       else if(d == "NARYTREE") { _domain = NARYTREE; }
       else if(d == "UG") { _domain = UG; }
       else if(d == "GRID2D") { _domain = GRID2D; }
-      else { require(0, "Unrecognised domain type"); }
+      else { throw BadOptionSetting("Unrecognised domain type"); }
       continue;
     }
 
@@ -95,24 +96,29 @@ void Options::parse_args(int argc, char* argv[])
 
       if(trans == "SUPER_SOURCE") { _transduction = SUPER_SOURCE; }
       else if(trans == "IO ISOMORPH") { _transduction = IO_ISOMORPH; }
-      else { require(0, "Transduction type not recognized"); }
+      else { throw BadOptionSetting("Transduction type not recognized"); }
       continue;
     }
   }
 
   // TODO: raise exception if config parameters are not set,
   //       or add default values
+    // prepend program name to usage string
+
+  // prepend program name to usage string
+  _usage = string(argv[0]) + " " + _usage;
+
 }
 
 void RNNTrainingOptions::parse_args(int argc, char* argv[]) 
   throw(Options::BadOptionSetting) {
 
-  // parse connfiguration file first
+  // parse configuration file first
   try {
     Options::parse_args(argc, argv);
-  } catch(Options::BadOptionSetting e) {
-    cerr << e.explainError() << endl << endl;
-    cerr << usage << endl;
+  } catch(BadOptionSetting e) {
+    cerr << e.what() << endl << endl;
+    cerr << _usage << endl;
     exit(EXIT_FAILURE);
   }
  
@@ -149,7 +155,7 @@ void RNNTrainingOptions::parse_args(int argc, char* argv[])
 	args["threshold_error"] = string(argv[++i]);
       } else {
 	cerr << "Unknown switch " << argv[i] << "\n";
-	throw BadOptionSetting(usage);
+	throw BadOptionSetting(_usage);
       }
     }
   }
@@ -157,14 +163,14 @@ void RNNTrainingOptions::parse_args(int argc, char* argv[])
   _num_ops++;
   // Had to specify exactly one type of operation
   if(_num_ops == 0 || _num_ops > 1)
-    throw BadOptionSetting(usage);
+    throw BadOptionSetting(_usage);
 	  
 }
 
 Options* Options::instance() {
   if(_instance == 0) {
     string option_type(getenv("RNNOPTIONTYPE"));
-
+    
     if(option_type == "train")
       _instance = new RNNTrainingOptions;
     // should probably exit with error, general options have no context
