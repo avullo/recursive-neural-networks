@@ -9,7 +9,9 @@ CPPFLAGS += -I .. -I 3rdparty/catch
 LDFLAGS  = $(wildcard ../*.o)
 
 SOURCES = src/unit.cpp \
-	src/unit-dpag.cpp
+	src/unit-dpag.cpp \
+	src/unit-domain.cpp \
+	src/unit-options.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
