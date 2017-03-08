@@ -1,10 +1,7 @@
 #ifndef _STRUCTURED_DOMAIN_H_
 #define _STRUCTURED_DOMAIN_H_
 
-#include "DPAG.h"
-#include "Node.h"
-#include <cassert>
-#include <vector>
+#include <stdexcept>
 
 /*
 
@@ -34,18 +31,9 @@ typedef enum Domain {
 
 // Return the number of orientations the RNN must consider
 // to process an instance in the given domain
-int num_orientations(Domain domain) {
-  switch(domain) {
-  case DOAG: return 1;
-  case SEQUENCE: return 1;
-  case LINEARCHAIN: return 2;
-  case NARYTREE: return 1;
-  case UG: return 2;
-  case GRID2D: return 4;
-  default: // TODO raise exception
-  }
-}
-
+int num_orientations(Domain domain)
+  throw(std::logic_error);
+  
 typedef enum Transduction {
   SUPER_SOURCE = 0,
   IO_ISOMORPH
