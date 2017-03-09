@@ -13,7 +13,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <exception>
+#include <stdexcept>
 
 /* 
 
@@ -59,7 +59,7 @@ class Options {
  };
 
   // static method to return the singleton
-  static Options* instance();
+ static Options* instance() throw(BadOptionSetting);
 
   // parse arguments, base class reads configuration file
   // derived classes add specialised command line options
@@ -118,7 +118,7 @@ public:
     
     // Usage string: program name is added during command
     // line parsing.
-    _usage = " [Options]\n"
+    _usage = "[Options]\n"
       "Options:\n"
       "       -c <global configurations file> (default is ./global.cnf)\n"
       "       -n <network file>\n"

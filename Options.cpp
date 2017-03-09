@@ -103,7 +103,6 @@ void Options::parse_args(int argc, char* argv[])
 
   // TODO: raise exception if config parameters are not set,
   //       or add default values
-    // prepend program name to usage string
 
   // prepend program name to usage string
   _usage = string(argv[0]) + " " + _usage;
@@ -114,20 +113,18 @@ void RNNTrainingOptions::parse_args(int argc, char* argv[])
   throw(Options::BadOptionSetting) {
 
   // parse configuration file first
-  try {
-    Options::parse_args(argc, argv);
-  } catch(BadOptionSetting e) {
-    cerr << e.what() << endl << endl;
-    cerr << _usage << endl;
-    exit(EXIT_FAILURE);
-  }
+  Options::parse_args(argc, argv);
  
   /*** parse command line and find application specific options ***/
   for (int i = 1; i < argc; i++) {
     // parse switches
     if (argv[i][0] == '-') {
       string arg(argv[i]);
-      if(arg == "-n") {
+      if(arg == "-c") {
+	// this is already read by base object
+	// TODO: should avoid considering it here
+	++i;
+      } else if(arg == "-n") {
 	args["netname"] = string(argv[++i]);
       } else if(arg == "-l") {
 	args["eta"] = string(argv[++i]);
@@ -159,28 +156,24 @@ void RNNTrainingOptions::parse_args(int argc, char* argv[])
       }
     }
   }
-
-  _num_ops++;
-  // Had to specify exactly one type of operation
-  if(_num_ops == 0 || _num_ops > 1)
-    throw BadOptionSetting(_usage);
-	  
 }
 
-Options* Options::instance() {
+Options* Options::instance() throw(BadOptionSetting) {
   if(_instance == 0) {
-    string option_type(getenv("RNNOPTIONTYPE"));
-    
-    if(option_type == "train")
-      _instance = new RNNTrainingOptions;
-    // should probably exit with error, general options have no context
-    else
-      _instance = new Options;
+    try {
+      string option_type(getenv("RNNOPTIONTYPE"));
+      if(option_type == "train")
+	_instance = new RNNTrainingOptions;
+      else
+	throw BadOptionSetting("Invalid RNNOPTIONTYPE value");
+    } catch (logic_error& e) {
+      cerr << e.what() << endl;
+      throw BadOptionSetting("Must set RNNOPTIONTYPE envirnoment variable");
+    }
   }
 
   return _instance;
 }
-
 
 // static member initialization
 Options* Options::_instance = 0;
