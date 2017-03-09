@@ -40,12 +40,20 @@ class Options {
   // clients have to convert to the appropriate type before using an argument
   std::map<std::string, std::string> args;
 
-  // singleTon pattern: the constructor is not directly
+  // singleton pattern: the constructor is not directly
   // accessible and initializes the map with default values.
-  Options() {
+ Options() {
     // global configurations file: default to cwd
     args.insert(std::make_pair(std::string("config"), std::string(".rnnrc")));
 
+    // default values for global configuration parameters
+    _domain = DOAG;
+    _transduction = SUPER_SOURCE;
+    _precision = 3;
+
+    // the other values must be specified by the user
+    _input_dim = _domain_outdegree = _r = _s = 0;
+    
     _usage = "[Options]\n"
       "Options:\n"
       "\t-c <config file> (default is .rnnrc)\n";

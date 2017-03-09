@@ -95,18 +95,24 @@ void Options::parse_args(int argc, char* argv[])
       iss >> dummy >> trans;
 
       if(trans == "SUPER_SOURCE") { _transduction = SUPER_SOURCE; }
-      else if(trans == "IO ISOMORPH") { _transduction = IO_ISOMORPH; }
+      else if(trans == "IO_ISOMORPH") { _transduction = IO_ISOMORPH; }
       else { throw BadOptionSetting("Transduction type not recognized"); }
       continue;
     }
   }
 
-  // TODO: raise exception if config parameters are not set,
-  //       or add default values
-
-  // prepend program name to usage string
-  _usage = string(argv[0]) + " " + _usage;
-
+  // raise exception if config parameters are not set
+  if(!_input_dim)
+    throw BadOptionSetting("Must set input_dimension to a positive value");
+  if(!_domain_outdegree)
+    throw BadOptionSetting("Must set domain_outdegree to a positive value");
+  if(!_r)
+    throw BadOptionSetting("Must set number of layers in folding network to a positive value");
+  if(!_s)
+    throw BadOptionSetting("Must set number of layers in transforming network to a positive value");
+  if(!_lnunits.size())
+    throw BadOptionSetting("Couldn't set architecture of the folding and tranforming networks");
+ 
 }
 
 void RNNTrainingOptions::parse_args(int argc, char* argv[]) 
@@ -156,6 +162,9 @@ void RNNTrainingOptions::parse_args(int argc, char* argv[])
       }
     }
   }
+
+  // prepend program name to usage string
+  _usage = string(argv[0]) + " " + _usage;
 }
 
 Options* Options::instance() throw(BadOptionSetting) {
