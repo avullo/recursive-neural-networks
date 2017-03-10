@@ -3,9 +3,16 @@
 using namespace std;
 
 // factory method
-Instance* Instance::factory(Enum d, Transduction t, std::istream& is)
+Instance* Instance::factory(istream& is, Domain d, Transduction t, bool read_target)
   throw(BadInstanceCreation) {
-  if(type == SEQUENCE) { return new Sequence(d, t, is); }
+  
+  if(d == DOAG) { return new DOAG(is, t, read_target); }
+  if(d == SEQUENCE) { return new Sequence(is, t, read_target); }
+  if(d == LINEARCHAIN) { return new LinearChain(is, t, read_target); }
+  if(d == UG) { return new UndirectedGraph(is, t, read_target); }
+  if(d == GRID2D) { return new Grid2D(is, t, read_target); }
+
+  throw BadInstanceCreation("Unrecognised domain");
 }
 
 Instance::Skeleton::Skeleton(Domain domain): _i(-1), _o(-1), _norient(num_orientations(domain)) {
@@ -23,3 +30,17 @@ Instance::Skeleton::~Skeleton() {
   delete[] _top_orders;
 }
 
+void DOAG::read(istream& is, bool target) {
+}
+
+void Sequence::read(istream& is, bool target) {
+}
+
+void LinearChain::read(istream& is, bool target) {
+}
+
+void UndirectedGraph::read(istream& is, bool target) {
+}
+
+void Grid2D::read(istream& is, bool target) {
+}

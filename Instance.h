@@ -38,6 +38,7 @@ class Instance {
   
   */
   class Skeleton {
+  public:
     int _i; // max indegree
     int _o; // max outdegree
 
@@ -51,18 +52,11 @@ class Instance {
     DPAG** _orientations; // each orientation can be defined as a DPAG
     std::vector<int>* _top_orders;
     
-  public:
     Skeleton(Domain);
     ~Skeleton();
 
     int max_indegree() const { assert(_i>=0); return _i; }
     int max_outdegree() const { assert(_o>=0); return _o; }
-
-    // a skeleton is defined for a structured instance, which must
-    // be able to set its internal parameters
-    // forward declaration
-    class Instance;
-    friend class Instance;
   };
 
   Skeleton _skel;
@@ -84,7 +78,7 @@ class Instance {
   };
 
   // factory method
-  static Instance* factory(Enum)
+  static Instance* factory(std::istream&, Domain, Transduction, bool)
     throw(BadInstanceCreation);
   
   virtual void read(std::istream&, bool = true /* read target */) = 0;
@@ -110,7 +104,7 @@ class Instance {
 
 
 class DOAG: public Instance {
- DOAG(Domain d, Transductiont t): Instance(d, t) {}
+ DOAG(std::istream& is, Transduction t, bool read_target): Instance(DOAG, t) { read(is, read_target); }
   friend class Instance;
   
  public:
@@ -118,7 +112,7 @@ class DOAG: public Instance {
 };
 
 class Sequence: public Instance {
-  Sequence(Domain d, Transductiont t): Instance(d, t) {}
+ Sequence(std::istream& is, Transduction t, bool read_target): Instance(SEQUENCE, t) { read(is, read_target); }
   friend class Instance;
   
  public:
@@ -126,7 +120,7 @@ class Sequence: public Instance {
 };
 
 class LinearChain: public Instance {
-  LinearChain(Domain d, Transductiont t): Instance(d, t) {}
+ LinearChain(std::istream& is, Transduction t, bool read_target): Instance(LINEARCHAIN, t) { read(is, read_target); }
   friend class Instance;
   
  public:
@@ -134,7 +128,7 @@ class LinearChain: public Instance {
 };
 
 class UndirectedGraph: public Instance {
-  UndirectedGraph(Domain d, Transductiont t): Instance(d, t) {}
+ UndirectedGraph(std::istream& is, Transduction t, bool read_target): Instance(UG, t) { read(is, read_target); }
   friend class Instance;
   
  public:
@@ -142,7 +136,7 @@ class UndirectedGraph: public Instance {
 };
 
 class Grid2D: public Instance {
-  Grid2D(Domain d, Transductiont t): Instance(d, t) {}
+ Grid2D(std::istream& is, Transduction t, bool read_target): Instance(GRID2D, t) { read(is, read_target); }
   friend class Instance;
   
  public:
