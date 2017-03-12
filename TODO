@@ -1,6 +1,49 @@
-X Test suite
+-- InstanceParser
+so that Instance contains only relevant code to it, doesn't have to know how parse a format, Instance doesn't have to be passed an input stream
 
-- use Catch or Boost frameworks
+-- NodeParser
+Invoked by InstaceParser
+
+-- SkeletonParser
+Invoked by InstanceParser, a possible polymorphic implementation
+
+-- Node
+
+- flexible number of state transition networks requires storing a dynamic set of layer activations
+
+- must be able to deal with a generic form of node output/target
+
+- rnn class should be friend, so we can hide other elements
+
+- test suite
+
+-- Instance
+
+- NO, should be encapsulated in InstanceParser 
+  constructor from input stream, adapt to different domains by initialising different skeletons
+  domain and tranduction are taken from the global options instance
+
+- NO
+  subclasses to create instances of particular domains, with factory method pattern
+
+- test suite
+
+-- DataSet
+
+- read configuration parameter to trigger building structured instances differently according to the domain
+
+- methods to read from input streams depending on the domain
+
+-- Recursive NNs
+
+- a single, non templatised, implementation able to build and compute with a dynamic set of state transition functions
+  according to the domain
+
+- hidden/output activation functions have their own polymorphic hierarchy with the error minimisation procedure too
+
+- must be able to deal with a generic form of super-source output/target
+
+- test suite
 
 X DPAG
 
@@ -18,39 +61,12 @@ X Options
 
 - test suite
 
--- Instance
+X StructuredDomain
 
-- constructor from input stream, adapt to different domains by initialising different skeletons
-  domain and tranduction are taken from the global options instance
-
-- subclasses to create instances of particular domains, with factory method pattern
+- declares useful literals for representing domains and transductions
 
 - test suite
 
--- StructuredDomain
+X Include Test Suites with compilation target
 
-X declares useful literals for representing domains and transductions
-
-- test suite
-
--- Node
-
-- flexible number of state transition networks requires storing a dynamic set of layer activations
-
-- must be able to deal with a generic form of node output/target
-
--- DataSet
-
-- read configuration parameter to trigger building structured instances differently according to the domain
-
-- methods to read from input streams depending on the domain
-
--- Recursive NNs
-
-- a single, non templatised, implementation able to build and compute with a dynamic set of state transition functions
-  according to the domain
-
-- hidden/output activation functions have their own polymorphic hierarchy with the error minimisation procedure too
-
-- must be able to deal with a generic form of super-source output/target
-
+- use Catch or Boost frameworks
