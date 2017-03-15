@@ -1,7 +1,10 @@
 #include "StructuredDomain.h"
 #include "DPAG.h"
+#include "Node.h"
 #include <string>
 #include <vector>
+
+class InstanceParser;
 
 /*
   
@@ -9,14 +12,17 @@
 
  */
 class Instance {
- protected:
   // instances might have an id, which makes it easier to
   // evaluate and report performance on an instance basis
   std::string _id;
 
   // the structural domain this instance belongs to
   Domain _domain;
+
   Transduction _transduction;
+  bool _supervised;
+  
+  
   
   // learning a super-source transduction,
   // maintains the target associated to the whole structure
@@ -38,7 +44,6 @@ class Instance {
   
   */
   class Skeleton {
-  public:
     int _i; // max indegree
     int _o; // max outdegree
 
@@ -48,97 +53,86 @@ class Instance {
     
       NOTE: might implement lazy loading scheme
     */
-    int _norient; // number of orientations
+    unsigned int _norient; // number of orientations
     DPAG** _orientations; // each orientation can be defined as a DPAG
     std::vector<int>* _top_orders;
-    
+
+  public:
     Skeleton(Domain);
+    // TODO: copy constructor
+    // Skeleton(const Skeleton&);
     ~Skeleton();
 
-    int max_indegree() const { assert(_i>=0); return _i; }
-    int max_outdegree() const { assert(_o>=0); return _o; }
+    int maximum_indegree() const { assert(_i>=0); return _i; }
+    int maximum_outdegree() const { assert(_o>=0); return _o; }
+
+    unsigned int num_orient() const { return _norient; }
+    void orientation(unsigned int, DPAG*);
+    const DPAG* orientation(unsigned int);
+    DPAG** orientations() { return _orientations; }
+    std::vector<int> topological_order(unsigned int) const;
+    const std::vector<int>* topological_orders() { return _top_orders; }
   };
 
-  Skeleton _skel;
+  Skeleton* _skel;
+
+  friend class InstanceParser;
   
  public:
   
- Instance(Doman domain, Transduction transduction):
-  _domain(domain), _transduction(transduction), _skel(domain) {}
+ Instance(Domain domain, Transduction transduction, bool supervised):
+  _domain(domain), _transduction(transduction), _supervised(supervised), _skel(NULL) {}
+  // TODO: copy constructor
+  // Instance(const Instance&);
   virtual ~Instance() {
-    for(vector<Node*>::iterator it=_nodes.begin(); it!=_nodes.end(); ++it)
+    for(std::vector<Node*>::iterator it=_nodes.begin(); it!=_nodes.end(); ++it) {
       delete *it;
+      *it = 0;
+    }
+
+    delete _skel;
   }
 
-  // Used with factory method
   class BadInstanceCreation: public std::logic_error {
-  pulic:
-  BadInstanceCreation(std::string type):
-    logic_error("Cannot create type " + type) {}
+  public:
+  BadInstanceCreation(std::string msg):
+    logic_error(msg) {}
   };
-
-  // factory method
-  static Instance* factory(std::istream&, Domain, Transduction, bool)
-    throw(BadInstanceCreation);
-  
-  virtual void read(std::istream&, bool = true /* read target */) = 0;
   
   std::string id() const { return _id; }
-  
+  void id(const std::string& id) { _id = id; }
   Domain domain() const { return _domain; }
   Transduction transduction() const { return _transduction; }
-
-  // super-source transduction, load structure target
-  void load_target(const std::vector<float>& target) { _target = target; }
+  void skeleton(Skeleton* skel) {
+    if(_skel != NULL) delete _skel;
+    _skel = skel;
+  }
   
-  void load_input(int n, const std::vector<float>& input) { // load node n input
+  // super-source transduction, get/set structure target
+  int output_dim() const { return _target.size(); }
+  std::vector<float> target() { return _target; }
+  void load_target(const std::vector<float>& target) { _target = target; }
+
+  // though used internally, these are made public since other
+  // actors might want to set node features, e.g. instance is
+  // made on-the-fly for prediction
+  Node* node(unsigned int n) { assert(n>0 && n<_nodes.size()); assert(_nodes[n] != NULL); return _nodes[n]; }
+  void node(unsigned int n, Node* node) {
+    assert(n>0 && n<_nodes.size());
+    if(_nodes[n] != NULL)
+      delete _nodes[n];
+    _nodes[n] = node;
+  }
+  void load_input(unsigned int n, const std::vector<float>& input) { // load node n input
     assert(_nodes[n] != NULL);
     _nodes[n]->load_input(input);
   }
-  void load_target(int n, const std::vector<float>& target) { // load node n target
+  void load_target(unsigned int n, const std::vector<float>& target) { // load node n target
     assert(_nodes[n] != NULL);
     _nodes[n]->load_target(target);
   }
-  
-};
+  // TODO: these are temporary implementations, it depends on how the Node interface develops
+  /* int node_input_dim() const { return _nodes[0]->_encodedeInput.size(); } */
+  /* int node_output_dim() const { return _nodes[0]->_otargets.size(); } */
 
-
-class DOAG: public Instance {
- DOAG(std::istream& is, Transduction t, bool read_target): Instance(DOAG, t) { read(is, read_target); }
-  friend class Instance;
-  
- public:
-  void read(std::istream, bool = true);
-};
-
-class Sequence: public Instance {
- Sequence(std::istream& is, Transduction t, bool read_target): Instance(SEQUENCE, t) { read(is, read_target); }
-  friend class Instance;
-  
- public:
-  void read(std::istream, bool = true);
-};
-
-class LinearChain: public Instance {
- LinearChain(std::istream& is, Transduction t, bool read_target): Instance(LINEARCHAIN, t) { read(is, read_target); }
-  friend class Instance;
-  
- public:
-  void read(std::istream, bool = true);
-};
-
-class UndirectedGraph: public Instance {
- UndirectedGraph(std::istream& is, Transduction t, bool read_target): Instance(UG, t) { read(is, read_target); }
-  friend class Instance;
-  
- public:
-  void read(std::istream, bool = true);
-};
-
-class Grid2D: public Instance {
- Grid2D(std::istream& is, Transduction t, bool read_target): Instance(GRID2D, t) { read(is, read_target); }
-  friend class Instance;
-  
- public:
-  void read(std::istream, bool = true);
 };
