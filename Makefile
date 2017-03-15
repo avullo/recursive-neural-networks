@@ -17,7 +17,7 @@ LDFLAGS  =
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
-SOURCES = DPAG.cpp StructuredDomain.cpp Options.cpp
+SOURCES = DPAG.cpp StructuredDomain.cpp Instance.cpp InstanceParser.cpp Options.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
