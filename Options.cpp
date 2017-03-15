@@ -49,6 +49,13 @@ void Options::parse_args(int argc, char* argv[])
       continue;
     }
     
+    pos = line.find("output_dimension");
+    if(pos != string::npos) {
+      iss >> dummy >> _output_dim;
+      assert(_output_dim > 0);
+      continue;
+    }
+
     pos = line.find("domain_outdegree");
     if(pos != string::npos) {
       iss >> dummy >> _domain_outdegree;
@@ -104,6 +111,8 @@ void Options::parse_args(int argc, char* argv[])
   // raise exception if config parameters are not set
   if(!_input_dim)
     throw BadOptionSetting("Must set input_dimension to a positive value");
+  if(!_output_dim)
+    throw BadOptionSetting("Must set output_dimension to a positive value");
   if(!_domain_outdegree)
     throw BadOptionSetting("Must set domain_outdegree to a positive value");
   if(!_r)

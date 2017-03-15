@@ -30,7 +30,7 @@ class Options {
   std::string _usage;
   
   // global configuration options
-  int _input_dim, _domain_outdegree, _r, _s;
+  int _input_dim, _output_dim, _domain_outdegree, _r, _s;
   std::vector<int> _lnunits;
   int _precision;
   Domain _domain;
@@ -52,7 +52,7 @@ class Options {
     _precision = 3;
 
     // the other values must be specified by the user
-    _input_dim = _domain_outdegree = _r = _s = 0;
+    _input_dim = _output_dim = _domain_outdegree = _r = _s = 0;
     
     _usage = "[Options]\n"
       "Options:\n"
@@ -88,7 +88,8 @@ class Options {
   }
 
   // global parameters accessor member functions
-  int input_dimension() const { return _input_dim; }
+  int input_dim() const { return _input_dim; }
+  int output_dim() const { return _output_dim; }
   int domain_outdegree() const { return _domain_outdegree; }
   std::pair<int, int> layers_indices() const { return std::make_pair(_r, _s); }
   std::vector<int> layers_number_units() const { return _lnunits; }
@@ -113,7 +114,7 @@ class RNNTrainingOptions: public Options {
 
 public:
   
-  RNNTrainingOptions() {
+ RNNTrainingOptions():Options() {
     // default values for command line parameters
     args.insert(std::make_pair(std::string("eta"), std::string("0.001")));
     args.insert(std::make_pair(std::string("alpha"), std::string("0.1")));
