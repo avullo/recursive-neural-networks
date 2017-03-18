@@ -57,7 +57,7 @@ class Instance {
     
       NOTE: might implement lazy loading scheme
     */
-    unsigned int _norient; // number of orientations
+    uint _norient; // number of orientations
     DPAG** _orientations; // each orientation can be defined as a DPAG
     std::vector<int>* _top_orders;
 
@@ -67,7 +67,7 @@ class Instance {
     // Skeleton(const Skeleton&);
     ~Skeleton();
 
-    void orientation(unsigned int, DPAG*);
+    void orientation(uint, DPAG*);
     
     friend class ::Instance;
   };
@@ -114,18 +114,18 @@ class Instance {
   // though used internally, these are made public since other
   // actors might want to set node features, e.g. instance is
   // made on-the-fly for prediction
-  Node* node(unsigned int n) { assert(n>0 && n<_nodes.size()); assert(_nodes[n] != NULL); return _nodes[n]; }
-  void node(unsigned int n, Node* node) {
+  Node* node(uint n) { assert(n>=0 && n<_nodes.size()); assert(_nodes[n] != NULL); return _nodes[n]; }
+  void node(uint n, Node* node) {
     assert(n>=0 && n<_nodes.size());
     if(_nodes[n] != NULL)
       delete _nodes[n];
     _nodes[n] = node;
   }
-  void load_input(unsigned int n, const std::vector<float>& input) { // load node n input
+  void load_input(uint n, const std::vector<float>& input) { // load node n input
     assert(_nodes[n] != NULL);
     _nodes[n]->load_input(input);
   }
-  void load_target(unsigned int n, const std::vector<float>& target) { // load node n target
+  void load_target(uint n, const std::vector<float>& target) { // load node n target
     assert(_nodes[n] != NULL);
     _nodes[n]->load_target(target);
   }
@@ -137,10 +137,10 @@ class Instance {
   int maximum_indegree() const { assert(_skel->_i>=0); return _skel->_i; }
   int maximum_outdegree() const { assert(_skel->_o>=0); return _skel->_o; }
   
-  unsigned int num_orient() const { return _skel->_norient; }
-  const DPAG* orientation(unsigned int);
+  uint num_orient() const { return _skel->_norient; }
+  const DPAG* orientation(uint);
   DPAG** orientations() { return _skel->_orientations; }
-  std::vector<int> topological_order(unsigned int) const;
+  std::vector<int> topological_order(uint) const;
   const std::vector<int>* topological_orders() { return _skel->_top_orders; }
 
 };
