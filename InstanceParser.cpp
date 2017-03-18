@@ -1,3 +1,4 @@
+#include "General.h"
 #include "InstanceParser.h"
 using namespace std;
 
@@ -13,7 +14,7 @@ Instance* InstanceParser::read(istream& is) {
   // no need to deallocate, whoever calls me get
   // responsibility of the allocated memory for the instance
   _instance = new Instance(_domain, _transduction, _supervised);
-  
+ 
   read_header(is);
   read_node_io(is);
   read_skeleton(is);
@@ -78,8 +79,6 @@ istream& InstanceParser::read_skeleton(istream& is) {
 
 istream& InstanceParser::read_sequence(std::istream& is) {
   Instance::Skeleton* skel = new Instance::Skeleton(_domain);
-  assert(skel->num_orient() == 1);
-  
   DPAG* sequence = new DPAG(_num_nodes);
   
   // make the connections go from right to left
@@ -87,9 +86,8 @@ istream& InstanceParser::read_sequence(std::istream& is) {
   // i.e. reverse topological sort
   for(uint i=_num_nodes-1; i>0; --i)
     boost::add_edge(i, i-1, EdgeProperty(0), *sequence);
+  
   skel->orientation(0, sequence);
-  assert(skel->maximum_indegree() == 1 && skel->maximum_outdegree() == 1);
-    
   _instance->skeleton(skel);
 
   return is;
