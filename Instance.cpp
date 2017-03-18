@@ -7,6 +7,10 @@ Instance::Skeleton::Skeleton(Domain domain): _i(-1), _o(-1), _norient(num_orient
   
   _orientations = new DPAG*[_norient];
   _top_orders = new vector<int>[_norient];
+  
+  for(uint i=0; i<_norient; ++i)
+    _orientations[i] = NULL;
+
 }
 
 Instance::Skeleton::~Skeleton() {
@@ -18,28 +22,31 @@ Instance::Skeleton::~Skeleton() {
 
 
 void Instance::Skeleton::orientation(unsigned int index, DPAG* dpag) {
-  assert(index>0 && index<_norient);
+  assert(index>=0 && index<_norient);
 
   int mi = max_indegree(*dpag);
   int mo = max_outdegree(*dpag);
   if(_i < mi) _i = mi;
   if(_o < mo) _o = mo;
 
-  if(_orientations[index] != NULL)
+  if(_orientations[index] != NULL) {
     delete _orientations[index];
+    
+  }
+  
   _orientations[index] = dpag;
   
   _top_orders[index] = topological_sort(*(_orientations[index]));
 }
 
-const DPAG* Instance::Skeleton::orientation(unsigned int index) {
-  assert(index>0 && index<_norient);
+const DPAG* Instance::orientation(unsigned int index) {
+  assert(index>=0 && index<_skel->_norient);
   
-  return _orientations[index];
+  return _skel->_orientations[index];
 }
 
-vector<int> Instance::Skeleton::topological_order(unsigned int index) const {
-  assert(index>0 && index<_norient);
+vector<int> Instance::topological_order(unsigned int index) const {
+  assert(index>=0 && index<_skel->_norient);
 
-  return _top_orders[index];
+  return _skel->_top_orders[index];
 }
