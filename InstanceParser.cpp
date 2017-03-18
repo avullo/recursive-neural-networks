@@ -33,7 +33,7 @@ istream& InstanceParser::read_header(istream& is) {
   
   if(_transduction == SUPER_SOURCE && _supervised) {
     vector<float> graph_target(_output_dim, .0);
-    for(unsigned int i=0; i<_output_dim; ++i)
+    for(uint i=0; i<_output_dim; ++i)
       is >> graph_target[i];
     _instance->load_target(graph_target);
   }
@@ -42,17 +42,17 @@ istream& InstanceParser::read_header(istream& is) {
 }
 
 istream& InstanceParser::read_node_io(istream& is) {
-  for(unsigned int i=0; i<_num_nodes; ++i) {
+  for(uint i=0; i<_num_nodes; ++i) {
     Node* n = new Node;
     
     vector<float> node_input(_input_dim, .0);
-    for(unsigned int j=0; j<_input_dim; ++j)
+    for(uint j=0; j<_input_dim; ++j)
       is >> node_input[j];
     n->load_input(node_input);
     
     if(_transduction == IO_ISOMORPH && _supervised) {
       vector<float> node_target(_output_dim, .0);
-      for(unsigned int j=0; j<_output_dim; ++j)
+      for(uint j=0; j<_output_dim; ++j)
 	is >> node_target[j];
       n->load_target(node_target);
     }
