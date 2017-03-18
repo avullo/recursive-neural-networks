@@ -66,7 +66,7 @@ public:
     DPAG s(T);
 
     // make the connections go from right to left
-    // to emulate RNN unfolding from right to left,
+    // to emulate RNN unfolding from left to right,
     // i.e. reverse topological sort
     for(uint i=T-1; i>0; --i)
       boost::add_edge(i, i-1, s);
