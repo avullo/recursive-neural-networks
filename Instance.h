@@ -1,6 +1,10 @@
+#ifndef _INSTANCE_H_
+#define _INSTANCE_H_
+
 #include "StructuredDomain.h"
 #include "DPAG.h"
 #include "Node.h"
+
 #include <string>
 #include <vector>
 
@@ -63,15 +67,9 @@ class Instance {
     // Skeleton(const Skeleton&);
     ~Skeleton();
 
-    int maximum_indegree() const { assert(_i>=0); return _i; }
-    int maximum_outdegree() const { assert(_o>=0); return _o; }
-
-    unsigned int num_orient() const { return _norient; }
     void orientation(unsigned int, DPAG*);
-    const DPAG* orientation(unsigned int);
-    DPAG** orientations() { return _orientations; }
-    std::vector<int> topological_order(unsigned int) const;
-    const std::vector<int>* topological_orders() { return _top_orders; }
+    
+    friend class ::Instance;
   };
 
   Skeleton* _skel;
@@ -118,7 +116,7 @@ class Instance {
   // made on-the-fly for prediction
   Node* node(unsigned int n) { assert(n>0 && n<_nodes.size()); assert(_nodes[n] != NULL); return _nodes[n]; }
   void node(unsigned int n, Node* node) {
-    assert(n>0 && n<_nodes.size());
+    assert(n>=0 && n<_nodes.size());
     if(_nodes[n] != NULL)
       delete _nodes[n];
     _nodes[n] = node;
@@ -135,4 +133,16 @@ class Instance {
   /* int node_input_dim() const { return _nodes[0]->_encodedeInput.size(); } */
   /* int node_output_dim() const { return _nodes[0]->_otargets.size(); } */
 
+  // skeleton based methods
+  int maximum_indegree() const { assert(_skel->_i>=0); return _skel->_i; }
+  int maximum_outdegree() const { assert(_skel->_o>=0); return _skel->_o; }
+  
+  unsigned int num_orient() const { return _skel->_norient; }
+  const DPAG* orientation(unsigned int);
+  DPAG** orientations() { return _skel->_orientations; }
+  std::vector<int> topological_order(unsigned int) const;
+  const std::vector<int>* topological_orders() { return _skel->_top_orders; }
+
 };
+
+#endif // _INSTANCE_H_
