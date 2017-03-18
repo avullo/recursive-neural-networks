@@ -62,7 +62,8 @@ TEST_CASE("Basic tests", "[options]") {
   // check values read from configuration file
   CHECK(Options::instance()->domain() == SEQUENCE);
   CHECK(Options::instance()->transduction() == IO_ISOMORPH);
-  CHECK(Options::instance()->input_dimension() == 20);
+  CHECK(Options::instance()->input_dim() == 3);
+  CHECK(Options::instance()->output_dim() == 3);
   CHECK(Options::instance()->domain_outdegree() == 5);
   pair<int, int> li = Options::instance()->layers_indices();
   CHECK(li.first == 2); CHECK(li.second == 1);
