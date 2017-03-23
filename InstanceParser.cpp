@@ -93,7 +93,25 @@ istream& InstanceParser::read_sequence(std::istream& is) {
   return is;
 }
 
-istream& InstanceParser::read_linear_chain(std::istream& is) { return is; }
+istream& InstanceParser::read_linear_chain(std::istream& is) {
+  // skeleton is composed of two sequences, one right to left
+  // and the other from left to right
+  Instance::Skeleton* skel = new Instance::Skeleton(_domain);
+
+  DPAG* rlseq = new DPAG(_num_nodes);
+  for(uint i=_num_nodes-1; i>0; --i)
+    boost::add_edge(i, i-1, EdgeProperty(0), *rlseq);
+  skel->orientation(0, rlseq);
+
+  DPAG* lrseq = new DPAG(_num_nodes);
+  for(uint i=0; i<_num_nodes-1; ++i)
+    boost::add_edge(i, i+1, EdgeProperty(0), *lrseq);
+  skel->orientation(1, lrseq);
+
+  _instance->skeleton(skel);
+  
+  return is;
+}
 
 istream& InstanceParser::read_doag(std::istream& is) { return is; }
 
