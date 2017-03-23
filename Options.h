@@ -95,7 +95,9 @@ class Options {
   std::vector<int> layers_number_units() const { return _lnunits; }
   int precision() const { return _precision; }
   Domain domain() const { return _domain; }
+  void domain(Domain d) { _domain = d; }
   Transduction transduction() const { return _transduction; }
+  void transduction(Transduction t) { _transduction = t; }
  
 };
 
