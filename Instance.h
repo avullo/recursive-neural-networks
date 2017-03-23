@@ -138,8 +138,10 @@ class Instance {
   int maximum_outdegree() const { assert(_skel->_o>=0); return _skel->_o; }
   
   uint num_orient() const { return _skel->_norient; }
-  const DPAG* orientation(uint);
+  // TODO: throw exception
+  DPAG* orientation(uint);
   DPAG** orientations() { return _skel->_orientations; }
+  // TODO: throw exception
   std::vector<int> topological_order(uint) const;
   const std::vector<int>* topological_orders() { return _skel->_top_orders; }
 

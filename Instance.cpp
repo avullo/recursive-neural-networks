@@ -29,17 +29,14 @@ void Instance::Skeleton::orientation(uint index, DPAG* dpag) {
   if(_i < mi) _i = mi;
   if(_o < mo) _o = mo;
 
-  if(_orientations[index] != NULL) {
+  if(_orientations[index] != NULL)
     delete _orientations[index];
-    
-  }
-  
   _orientations[index] = dpag;
   
   _top_orders[index] = topological_sort(*(_orientations[index]));
 }
 
-const DPAG* Instance::orientation(uint index) {
+DPAG* Instance::orientation(uint index) {
   assert(index>=0 && index<_skel->_norient);
   
   return _skel->_orientations[index];
