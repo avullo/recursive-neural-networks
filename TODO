@@ -1,11 +1,6 @@
 -- InstanceParser
-so that Instance contains only relevant code to it, doesn't have to know how parse a format, Instance doesn't have to be passed an input stream
-
--- NodeParser
-Invoked by InstaceParser
-
--- SkeletonParser
-Invoked by InstanceParser, a possible polymorphic implementation
+so that Instance contains only relevant code to it, doesn't have to know how parse a format, Instance doesn't have to be passed an input stream,
+the parser is responsible for reading the options to guide the construction, and also to write an Instance to output stream
 
 -- Node
 
