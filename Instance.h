@@ -114,6 +114,7 @@ class Instance {
   // though used internally, these are made public since other
   // actors might want to set node features, e.g. instance is
   // made on-the-fly for prediction
+  uint num_nodes() const { return _nodes.size(); }
   Node* node(uint n) { assert(n>=0 && n<_nodes.size()); assert(_nodes[n] != NULL); return _nodes[n]; }
   void node(uint n, Node* node) {
     assert(n>=0 && n<_nodes.size());
