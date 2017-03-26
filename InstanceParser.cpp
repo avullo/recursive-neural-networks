@@ -113,7 +113,27 @@ istream& InstanceParser::read_linear_chain(std::istream& is) {
   return is;
 }
 
-istream& InstanceParser::read_doag(std::istream& is) { return is; }
+istream& InstanceParser::read_doag(std::istream& is) {
+  Instance::Skeleton* skel = new Instance::Skeleton(_domain);
+
+  DPAG* doag = new DPAG(_num_nodes);
+  string line;
+  for(uint i=0; i<_num_nodes; ++i) {
+    getline(is, line);
+    istringstream iss(line);
+    int v;
+    iss >> v;
+    int target;
+    int eindex = 0;
+    while(iss >> target)
+      boost::add_edge(v, target, EdgeProperty(eindex++), *doag);
+  }
+
+  skel->orientation(0, doag);
+  _instance->skeleton(skel);
+
+  return is;
+}
 
 istream& InstanceParser::read_ugraph(std::istream& is) { return is; }
 
