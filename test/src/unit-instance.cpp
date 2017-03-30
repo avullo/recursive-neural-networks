@@ -271,7 +271,7 @@ TEST_CASE("Basic tests", "[instance]") {
     is.close();
 
     CHECK(instance->id() == "dummy");
-    CHECK(instance->domain() == DOAG);
+    CHECK(instance->domain() == UG);
 
     SECTION("accessing graph target") {
       CHECK(instance->transduction() == SUPER_SOURCE);
@@ -293,11 +293,11 @@ TEST_CASE("Basic tests", "[instance]") {
     }
     
     SECTION("accessing skeleton") {
-      CHECK(instance->maximum_indegree() == 2);
-      CHECK(instance->maximum_outdegree() == 2);
+      CHECK(instance->maximum_indegree() == 3);
+      CHECK(instance->maximum_outdegree() == 3);
       CHECK(instance->num_orient() == 2);
 
-      DPAG* doag = instance->orientation(1); // HERE
+      DPAG* doag = instance->orientation(1);
       int V = boost::num_vertices(*doag);
       CHECK(V == instance->num_nodes());
       
@@ -306,57 +306,61 @@ TEST_CASE("Basic tests", "[instance]") {
       Vertex_d v = boost::vertex(0, *doag);
       boost::tie(out_i, out_end)=boost::out_edges(v, *doag);
       boost::tie(in_i, in_end)=boost::in_edges(v, *doag);
-
-      CHECK(in_i == in_end);
-      CHECK(boost::target(*out_i, *doag) == 1);
-      CHECK(edge_id[*out_i] == 0);
-      CHECK(boost::target(*(++out_i), *doag) == 3);
-      CHECK(edge_id[*out_i] == 1);
-      CHECK(++out_i == out_end);
+      CHECK(boost::source(*in_i, *doag) == 1);
+      CHECK(edge_id[*in_i] == 1);
+      CHECK(boost::source(*(++in_i), *doag) == 3);
+      CHECK(edge_id[*in_i] == 2);
+      CHECK(++in_i == in_end);
+      CHECK(out_i == out_end);
 
       v = boost::vertex(1, *doag);
       boost::tie(out_i, out_end)=boost::out_edges(v, *doag);
       boost::tie(in_i, in_end)=boost::in_edges(v, *doag);
-      CHECK(boost::source(*in_i, *doag) == 0);
+      CHECK(boost::source(*in_i, *doag) == 2);
+      CHECK(edge_id[*in_i] == 1);
+      CHECK(boost::source(*(++in_i), *doag) == 3);
+      CHECK(edge_id[*in_i] == 1);
       CHECK(++in_i == in_end);
-      CHECK(boost::target(*out_i, *doag) == 2);
-      CHECK(edge_id[*out_i] == 0);
-      CHECK(boost::target(*(++out_i), *doag) == 3);
+      CHECK(boost::target(*out_i, *doag) == 0);
       CHECK(edge_id[*out_i] == 1);
       CHECK(++out_i == out_end);
 
       v = boost::vertex(2, *doag);
       boost::tie(out_i, out_end)=boost::out_edges(v, *doag);
       boost::tie(in_i, in_end)=boost::in_edges(v, *doag);
-      CHECK(boost::source(*in_i, *doag) == 1);
+      CHECK(boost::source(*in_i, *doag) == 3);
+      CHECK(edge_id[*in_i] == 0);
       CHECK(++in_i == in_end);
-      CHECK(out_i == out_end);
+      CHECK(boost::target(*out_i, *doag) == 1);
+      CHECK(edge_id[*out_i] == 1);
+      CHECK(++out_i == out_end);
 
       v = boost::vertex(3, *doag);
       boost::tie(out_i, out_end)=boost::out_edges(v, *doag);
       boost::tie(in_i, in_end)=boost::in_edges(v, *doag);
-      CHECK(boost::source(*in_i, *doag) == 0);
-      CHECK(boost::source(*(++in_i), *doag) == 1);
-      CHECK(++in_i == in_end);
-      CHECK(out_i == out_end);
-
+      CHECK(in_i == in_end);
+      CHECK(boost::target(*out_i, *doag) == 2);
+      CHECK(edge_id[*out_i] == 0);
+      CHECK(boost::target(*(++out_i), *doag) == 1);
+      CHECK(edge_id[*out_i] == 1);
+      CHECK(boost::target(*(++out_i), *doag) == 0);
+      CHECK(edge_id[*out_i] == 2);
+      CHECK(++out_i == out_end);
     }
 
     SECTION("topological sort") {
-      vector<int> top_sort = instance->topological_order(0);
+      vector<int> top_sort = instance->topological_order(1);
       CHECK(top_sort.size() == instance->num_nodes());
       
-      CHECK(top_sort[0] == 0);
-      CHECK(top_sort[1] == 1);
+      CHECK(top_sort[0] == 3);
+      CHECK(top_sort[1] == 2);
       
       // NOTE: cannot check with complex expressions
       // Is there a better way?
-      CHECK(top_sort[2] >= 2);
-      CHECK(top_sort[2] <= 3);
-      CHECK(top_sort[3] >= 2);
-      CHECK(top_sort[3] <= 3);
+      CHECK(top_sort[2] >= 0);
+      CHECK(top_sort[2] <= 1);
+      CHECK(top_sort[3] >= 0);
+      CHECK(top_sort[3] <= 1);
     }
   }
-
-  
 }
