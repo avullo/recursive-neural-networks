@@ -135,6 +135,86 @@ istream& InstanceParser::read_doag(std::istream& is) {
   return is;
 }
 
-istream& InstanceParser::read_ugraph(std::istream& is) { return is; }
+istream& InstanceParser::read_ugraph(std::istream& is) {
+  Instance::Skeleton* skel = new Instance::Skeleton(_domain);
+
+  DPAG dpag(_num_nodes);
+  string line;
+  for(uint i=0; i<_num_nodes; ++i) {
+    getline(is, line);
+    istringstream iss(line);
+    int v;
+    iss >> v;
+    int target;
+    int eindex = 0;
+    while(iss >> target)
+      boost::add_edge(v, target, EdgeProperty(eindex++), dpag);
+  }
+
+  VertexId vertex_id = boost::get(boost::vertex_index, dpag);
+  vertexIt v_i, v_end;
+  outIter out_i, out_end, out_i1;
+
+  map<int, vector<int> > r_edges;
+  uint n_vertices = boost::num_vertices(dpag);
+  for(uint i=0; i<n_vertices; i++) {
+    r_edges[i] = vector<int>();
+  }
+
+  DPAG* d_dpag = new DPAG(n_vertices);
+  for(boost::tie(v_i, v_end) = boost::vertices(dpag); v_i!=v_end; ++v_i) {
+    vector<uint> children;
+    for(boost::tie(out_i, out_end)=boost::out_edges(*v_i, dpag);
+	out_i!=out_end; ++out_i) {
+      children.push_back(boost::target(*out_i, dpag));
+      r_edges[boost::target(*out_i, dpag)].push_back(boost::source(*out_i, dpag));
+    }
+    if(vertex_id[*v_i] != n_vertices-1) {
+      int edge_index = 0;
+      if(!children.size()) {
+	boost::add_edge(vertex_id[*v_i], vertex_id[*v_i]+1, EdgeProperty(edge_index), *d_dpag);
+      } else {
+	sort(children.begin(), children.end());
+
+	if(children.front() == vertex_id[*v_i]+1)
+	  edge_index++; 
+	else 
+	  boost::add_edge(vertex_id[*v_i], vertex_id[*v_i]+1, EdgeProperty(edge_index++), *d_dpag);
+	 
+	for(uint i=0; i<children.size(); i++)
+	  boost::add_edge(vertex_id[*v_i], children[i], EdgeProperty(edge_index++), *d_dpag);
+      }
+    }
+  }
+  
+  DPAG* r_dpag = new DPAG(n_vertices);
+  for(boost::tie(v_i, v_end) = boost::vertices(dpag); v_i!=v_end; ++v_i) {
+    if(!vertex_id[*v_i])
+      continue;
+    map<int, vector<int> >::iterator it = r_edges.find(vertex_id[*v_i]);
+    if(it != r_edges.end()) {
+      int edge_index = 0;
+      if(!(*it).second.size()) {
+	boost::add_edge(vertex_id[*v_i], vertex_id[*v_i]-1, EdgeProperty(edge_index), *r_dpag);
+      } else {
+	sort((*it).second.begin(), (*it).second.end(), greater<int>());
+
+	if((uint)(*it).second.front() == vertex_id[*v_i]-1)
+	  edge_index++; 
+	else 
+	  boost::add_edge(vertex_id[*v_i], vertex_id[*v_i]-1, EdgeProperty(edge_index++), *r_dpag);
+	 
+	for(uint i=0; i<(*it).second.size(); i++)
+	  boost::add_edge(vertex_id[*v_i], ((*it).second)[i], EdgeProperty(edge_index++), *r_dpag);
+      }
+    }
+  }
+
+  skel->orientation(0, d_dpag);
+  skel->orientation(1, r_dpag);
+  _instance->skeleton(skel);
+  
+  return is;
+}
 
 istream& InstanceParser::read_grid2d(std::istream& is) { return is; }
