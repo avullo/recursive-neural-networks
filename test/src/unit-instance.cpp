@@ -363,4 +363,207 @@ TEST_CASE("Basic instance tests", "[instance]") {
       CHECK(top_sort[3] <= 1);
     }
   }
+
+  SECTION("2DGRID") {
+    Options::instance()->domain(GRID2D);
+    Options::instance()->transduction(IO_ISOMORPH);
+    InstanceParser p;
+    ifstream is("data/grid.gph");
+    Instance* instance = p.read(is);
+    is.close();
+
+    CHECK(instance->id() == "dummy");
+    CHECK(instance->domain() == GRID2D);
+    CHECK(instance->transduction() == IO_ISOMORPH);
+    
+    SECTION("accessing nodes") {
+      vector<float> node_input, node_target;
+      Node* n = instance->node(0);
+      node_input = n->input();
+      node_target = n->target();
+      CHECK(node_input[0] == .1f); CHECK(node_input[1] == .2f); CHECK(node_input[2] == .3f);
+      CHECK(node_target[0] == .3f); CHECK(node_target[1] == .2f); CHECK(node_target[2] == .1f);
+      
+      n = instance->node(4);
+      node_input = n->input();
+      node_target = n->target();
+      CHECK(node_input[0] == .3f); CHECK(node_input[1] == .4f); CHECK(node_input[2] == .5f);
+      CHECK(node_target[0] == .5f); CHECK(node_target[1] == .4f); CHECK(node_target[2] == .3f);
+    }
+
+    SECTION("accessing skeleton") {
+      CHECK(instance->maximum_indegree() == 2);
+      CHECK(instance->maximum_outdegree() == 2);
+      CHECK(instance->num_orient() == 4);
+
+      SECTION("NWSE") {
+	DPAG* grid = instance->orientation(0);
+	EdgeId edge_id = boost::get(boost::edge_index, *grid);
+
+	Vertex_d v = boost::vertex(0, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 1);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(boost::target(*(++out_i), *grid) == 3);
+	CHECK(edge_id[*out_i] == 1);
+	CHECK(++out_i == out_end);
+
+	v = boost::vertex(5, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(boost::source(*in_i, *grid) == 2);
+	CHECK(boost::source(*(++in_i), *grid) == 4);
+	CHECK(++in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 8);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(++out_i == out_end);
+
+	v = boost::vertex(8, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(boost::source(*in_i, *grid) == 5);
+	CHECK(boost::source(*(++in_i), *grid) == 7);
+	CHECK(++in_i == in_end);
+	CHECK(out_i == out_end);
+      }
+      SECTION("SENW") {
+	DPAG* grid = instance->orientation(1);
+	EdgeId edge_id = boost::get(boost::edge_index, *grid);
+
+	Vertex_d v = boost::vertex(0, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(out_i == out_end);
+	CHECK(boost::source(*in_i, *grid) == 3);
+	CHECK(boost::source(*(++in_i), *grid) == 1);
+	CHECK(++in_i == in_end);
+
+	v = boost::vertex(5, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(boost::source(*in_i, *grid) == 8);
+	CHECK(++in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 4);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(boost::target(*(++out_i), *grid) == 2);
+	CHECK(++out_i == out_end);
+
+	v = boost::vertex(8, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(boost::target(*out_i, *grid) == 7);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(boost::target(*(++out_i), *grid) == 5);
+	CHECK(edge_id[*out_i] == 1);
+	CHECK(++out_i == out_end);
+	CHECK(in_i == in_end);
+      }
+      SECTION("NESW") {
+	DPAG* grid = instance->orientation(2);
+	EdgeId edge_id = boost::get(boost::edge_index, *grid);
+
+	Vertex_d v = boost::vertex(2, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 1);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(boost::target(*(++out_i), *grid) == 5);
+	CHECK(edge_id[*out_i] == 1);
+	CHECK(++out_i == out_end);
+
+	v = boost::vertex(3, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(boost::source(*in_i, *grid) == 0);
+	CHECK(boost::source(*(++in_i), *grid) == 4);
+	CHECK(++in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 6);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(++out_i == out_end);
+
+	v = boost::vertex(8, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(boost::source(*in_i, *grid) == 5);
+	CHECK(++in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 7);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(++out_i == out_end);
+      }
+      SECTION("SWNE") {
+	DPAG* grid = instance->orientation(3);
+	EdgeId edge_id = boost::get(boost::edge_index, *grid);
+
+	Vertex_d v = boost::vertex(6, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 7);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(boost::target(*(++out_i), *grid) == 3);
+	CHECK(edge_id[*out_i] == 1);
+	CHECK(++out_i == out_end);
+
+	v = boost::vertex(5, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(boost::source(*in_i, *grid) == 8);
+	CHECK(boost::source(*(++in_i), *grid) == 4);
+	CHECK(++in_i == in_end);
+	CHECK(boost::target(*out_i, *grid) == 2);
+	CHECK(edge_id[*out_i] == 0);
+	CHECK(++out_i == out_end);
+
+	v = boost::vertex(2, *grid);
+	boost::tie(out_i, out_end)=boost::out_edges(v, *grid);
+	boost::tie(in_i, in_end)=boost::in_edges(v, *grid);
+	CHECK(out_i == out_end);
+	CHECK(boost::source(*in_i, *grid) == 5);
+	CHECK(boost::source(*(++in_i), *grid) == 1);
+	CHECK(++in_i == in_end);
+      }
+    }
+
+    SECTION("topological sort") {
+      SECTION("NWSE") {
+	vector<int> top_sort = instance->topological_order(0);
+	CHECK(top_sort.size() == instance->num_nodes());
+
+	CHECK(top_sort[0] == 0);
+	CHECK(top_sort[1] == 3);
+	CHECK(top_sort[5] == 7);
+	CHECK(top_sort[instance->num_nodes()-1] == instance->num_nodes()-1);
+      }
+      SECTION("SENW") {
+	vector<int> top_sort = instance->topological_order(1);
+	CHECK(top_sort.size() == instance->num_nodes());
+
+	CHECK(top_sort[0] == 8);
+	CHECK(top_sort[1] == 7);
+	CHECK(top_sort[5] == 3);
+	CHECK(top_sort[instance->num_nodes()-1] == 0);
+      }
+      SECTION("NESW") {
+	vector<int> top_sort = instance->topological_order(2);
+	CHECK(top_sort.size() == instance->num_nodes());
+
+	CHECK(top_sort[0] == 2);
+	CHECK(top_sort[1] == 5);
+	CHECK(top_sort[5] == 7);
+	CHECK(top_sort[instance->num_nodes()-1] == 6);
+      }
+      SECTION("SWNE") {
+	vector<int> top_sort = instance->topological_order(3);
+	CHECK(top_sort.size() == instance->num_nodes());
+
+	CHECK(top_sort[0] == 6);
+	CHECK(top_sort[1] == 7);
+	CHECK(top_sort[5] == 5);
+	CHECK(top_sort[instance->num_nodes()-1] == 2);
+      }
+    }
+  }
 }
