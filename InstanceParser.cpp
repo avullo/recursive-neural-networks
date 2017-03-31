@@ -217,4 +217,32 @@ istream& InstanceParser::read_ugraph(std::istream& is) {
   return is;
 }
 
-istream& InstanceParser::read_grid2d(std::istream& is) { return is; }
+istream& InstanceParser::read_grid2d(std::istream& is) {
+  Instance::Skeleton* skel = new Instance::Skeleton(_domain);
+
+  // read the number of rows and columns
+  int rows, cols;
+  is >> rows >> cols;
+  assert(rows>0 && cols>0);
+  assert(_num_nodes == (uint)rows*cols);
+
+  DPAG* nwse_grid = new DPAG(_num_nodes);
+  build_grid("nwse", rows, cols, nwse_grid);
+  skel->orientation(0, nwse_grid);
+
+  DPAG* senw_grid = new DPAG(_num_nodes);
+  build_grid("senw", rows, cols, senw_grid);
+  skel->orientation(1, senw_grid);
+
+  DPAG* nesw_grid = new DPAG(_num_nodes);
+  build_grid("nesw", rows, cols, nesw_grid);
+  skel->orientation(2, nesw_grid);
+
+  DPAG* swne_grid = new DPAG(_num_nodes);
+  build_grid("swne", rows, cols, swne_grid);
+  skel->orientation(3, swne_grid);
+
+  _instance->skeleton(skel);
+  
+  return is;
+}
