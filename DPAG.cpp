@@ -1,4 +1,6 @@
+#include "General.h"
 #include "DPAG.h"
+#include <cassert>
 #include <boost/graph/topological_sort.hpp>
 using namespace std;
 
@@ -6,7 +8,6 @@ bool equal(const DPAG& g1, const DPAG& g2) {
   if(boost::num_vertices(g1) != boost::num_vertices(g2))
     return false;
 
-  Vertex_d node;
   VertexId vertex_id = boost::get(boost::vertex_index, g1);
   vertexIt v_i, v_end;
   outIter out_i, out_i1, out_end, out_end1;
@@ -97,6 +98,86 @@ std::vector<int> topological_sort(const DPAG& dpag) {
   return linear_ordering;
 }
 
+void build_grid(const std::string& direction, int rows, int cols, DPAG& dpag, std::vector<int>& top_ord) {
+  int num_nodes = rows * cols;
+  assert(boost::num_vertices(dpag) == (uint)num_nodes &&  
+	 boost::num_edges(dpag) == 0 &&
+	 top_ord.size() == (uint)num_nodes);
+
+  if(direction == "nwse") {
+    for(int i=0; i<rows; ++i) {
+      for(int j=0; j<cols; ++j) {
+	int edge_index = 0;
+	if(j<cols-1)
+	  boost::add_edge(i*rows+j, i*rows+j+1, EdgeProperty(edge_index++), dpag);
+	if(i<rows-1)
+	  boost::add_edge(i*rows+j, (i+1)*rows+j, EdgeProperty(edge_index++), dpag);
+      }
+    }
+    
+    int index = 0;
+    for(int j=0; j<cols; ++j) {
+      for(int i=0; i<rows; ++i) {
+	top_ord[index++] = i*rows+j;
+      }
+    }
+  } else if(direction == "senw") {
+    for(int i=rows-1; i>=0; --i) {
+      for(int j=cols-1; j>=0; --j) {
+	int edge_index = 0;
+	if(j>0)
+	  boost::add_edge(i*rows+j, i*rows+j-1, EdgeProperty(edge_index++), dpag);
+	if(i>0)
+	  boost::add_edge(i*rows+j, (i-1)*rows+j, EdgeProperty(edge_index++), dpag);
+      }
+    }
+    
+    int index = 0;
+    for(int i=rows-1; i>=0; --i) {
+      for(int j=cols-1; j>=0; --j) {
+	top_ord[index++] = i*rows+j;
+      }
+    }
+  } else if(direction == "nesw") {
+    for(int i=0; i<rows; ++i) {
+      for(int j=cols-1; j>=0; --j) {
+	int edge_index = 0;
+	if(j>0)
+	  boost::add_edge(i*rows+j, i*rows+j-1, EdgeProperty(edge_index++), dpag);
+	if(i<rows-1)
+	  boost::add_edge(i*rows+j, (i+1)*rows+j, EdgeProperty(edge_index++), dpag);
+      }
+    }
+    
+    int index = 0;
+    for(int j=cols-1; j>=0; --j) {
+      for(int i=0; i<rows; ++i) {
+	top_ord[index++] = i*rows+j;
+      }
+    }
+  } else if(direction == "swne") {
+    for(int i=rows-1; i>=0; --i) {
+      for(int j=0; j<cols; ++j) {
+	int edge_index = 0;
+	if(j<cols-1)
+	  boost::add_edge(i*rows+j, i*rows+j+1, EdgeProperty(edge_index++), dpag);
+	if(i>0)
+	  boost::add_edge(i*rows+j, (i-1)*rows+j, EdgeProperty(edge_index++), dpag);
+      }
+    }
+    
+    int index = 0;
+    for(int i=rows-1; i>=0; --i) {
+      for(int j=0; j<cols; ++j) {
+	top_ord[index++] = i*rows+j;
+      }
+    }
+
+  } else {
+    cerr << "ERROR! Wrong direction...\n";
+    exit(1);
+  }
+}
 
 void print(const DPAG& dpag, ostream& out) {
   VertexId vertex_id = boost::get(boost::vertex_index, dpag);

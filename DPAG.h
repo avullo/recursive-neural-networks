@@ -47,7 +47,12 @@ unsigned int max_outdegree(const DPAG&);
 
 // Function to produce a topological ordering of the nodes of a DPAG
 std::vector<int> topological_sort(const DPAG&);
-  
+
+// Function to construct the grids corresponding
+// to the four processing direction of a Recursive Neural Network
+// applid to bidimensional grid domains
+void build_grid(const std::string&, int, int, DPAG&, std::vector<int>&);
+
 // print DPAG to output stream
 void print(const DPAG& dpag, std::ostream&);
 
