@@ -10,7 +10,7 @@ using namespace std;
 typedef unsigned int uint;
 
 
-TEST_CASE("Basic tests", "[instance]") {
+TEST_CASE("Basic instance tests", "[instance]") {
   // prepare arguments and read configuration file
   setenv("RNNOPTIONTYPE", "train", 1);
   char* argv[] = { (char*)"dummy", (char*)"-c", (char*)"data/rnn.conf" };
