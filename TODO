@@ -1,7 +1,3 @@
--- InstanceParser
-so that Instance contains only relevant code to it, doesn't have to know how parse a format, Instance doesn't have to be passed an input stream,
-the parser is responsible for reading the options to guide the construction, and also to write an Instance to output stream
-
 -- Node
 
 - flexible number of state transition networks requires storing a dynamic set of layer activations
@@ -9,17 +5,6 @@ the parser is responsible for reading the options to guide the construction, and
 - must be able to deal with a generic form of node output/target
 
 - rnn class should be friend, so we can hide other elements
-
-- test suite
-
--- Instance
-
-- NO, should be encapsulated in InstanceParser 
-  constructor from input stream, adapt to different domains by initialising different skeletons
-  domain and tranduction are taken from the global options instance
-
-- NO
-  subclasses to create instances of particular domains, with factory method pattern
 
 - test suite
 
@@ -37,6 +22,21 @@ the parser is responsible for reading the options to guide the construction, and
 - hidden/output activation functions have their own polymorphic hierarchy with the error minimisation procedure too
 
 - must be able to deal with a generic form of super-source output/target
+
+- test suite
+
+X InstanceParser
+so that Instance contains only relevant code to it, doesn't have to know how parse a format, Instance doesn't have to be passed an input stream,
+the parser is responsible for reading the options to guide the construction, and also to write an Instance to output stream
+
+X Instance
+
+- NO, should be encapsulated in InstanceParser 
+  constructor from input stream, adapt to different domains by initialising different skeletons
+  domain and tranduction are taken from the global options instance
+
+- NO
+  subclasses to create instances of particular domains, with factory method pattern
 
 - test suite
 
