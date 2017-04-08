@@ -1,27 +1,26 @@
 #ifndef _NODE_H
 #define _NODE_H
 
-#include "Options.h"
 #include <vector>
 
 /* 
-   Manage DPAG node informations suitable to be processed
+   Manage DPAG node information suitable to be processed
    by a recursive neural network.
 */
 
 class Node {
-  /* // Whether or not to process outputs in b layers */
-/*   bool _process_dr; */
-/*   // Wheter or not to do io-isomorf trasduction computations */
-/*   bool _ios_tr; */
+  int _r, _s;
+  std::vector<int> _lnunits;
+  bool _ios_tr;
+  int _norient;
   
   // Allocation specific routines
-  void allocFoldingOutputStruct(const std::vector<int>&, int, double***, double**);
-  void allocHoutputStruct(const std::vector<int>&, int, int);
+  void allocFoldingOutputStruct(double***, double**);
+  void allocHoutputStruct();
 
   // Deallocation specific routines
-  void deallocFoldingOutputStruct(const std::vector<int>&, int, double***, double**);
-  void deallocHoutputStruct(const std::vector<int>&, int);
+  void deallocFoldingOutputStruct(double***, double**);
+  void deallocHoutputStruct();
 
   // Prevent Assignment
   Node& operator=(const Node&);
@@ -51,10 +50,7 @@ class Node {
     because we need to store activations of every layer for each node,
     and not the copy of weights of the unfolding part.
   */
-  double** _f_layers_activations;
-  double** _b_layers_activations;
-  double** _j_layers_activations;
-  double** _k_layers_activations;
+  double*** _layers_activations;
   double** _h_layers_activations;
 
   /*
@@ -66,13 +62,9 @@ class Node {
     weight update can be computed (accumulated), so we do not need
     to store them (except those from representation layer, as already observed).
   */
-  double* _f_delta_lr;
-  double* _b_delta_lr;
-  double* _j_delta_lr;
-  double* _k_delta_lr;
+  double** _delta_lr;
 
   /* Constructors */
-  Node() {}
   Node(const std::vector<float>&);
 
   // Must furnish copy constructor to safely 
@@ -87,8 +79,8 @@ class Node {
     and delta values in representation so we can process 
     this node as another node of another structure.
   */
-  void allocStructs(const std::vector<int>&, int, int, bool, bool);
-  void deallocStructs(const std::vector<int>&, int, int, bool, bool);
+  // void allocStructs(const std::vector<int>&, int, int, bool, bool);
+  // void deallocStructs(const std::vector<int>&, int, int, bool, bool);
   void resetValues();
 
   std::vector<float> input() { return _encodedInput; }
