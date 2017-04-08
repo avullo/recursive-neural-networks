@@ -14,7 +14,8 @@ This work aims to create a design and implementation of recursive neural network
 
 This at the moment has more of an educational purpose, both personal as I practice some useful techniques like refactoring, design patterns, TDD, and aimed at people willing to learn and use about this kind of learning approaches.
 
-It is work in progress and it's not usable at the moment. I am constantly adding new components until the design is complete. 
+# Status
+The code is currently work in progress and is in an incomplete not yet usable state. I am constantly adding new components until the design is complete. 
 
 # Dependencies
 This code relies upon the Boost Graph Library and the CATCH unit testing framework. The latter is included as third party component.
