@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace std;
 
-DataSet::DataSet(const char* fname){
+DataSet::DataSet(const char* fname, bool ownership): own(ownership) {
   ifstream is(fname);
   assure(is, fname);
 
@@ -27,10 +27,12 @@ DataSet::DataSet(const char* fname){
 }
 
 DataSet::~DataSet() {
-  iterator it = begin();
-  while(it != end()) {
-    delete *it; *it = 0;
-    ++it;
+  if(own) {
+    iterator it = begin();
+    while(it != end()) {
+      delete *it; *it = 0;
+      ++it;
+    }
   }
 }
 

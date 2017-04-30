@@ -5,10 +5,16 @@
 #include <vector>
 
 class DataSet: public std::vector<Instance*> {
-  
+  // would include a map from instance names to positions
+  // to be able to create partition on demand
+
+  // whether the collection owns the instance pointers
+  // so as the destructor can proceed
+  bool own;
  public:
-  DataSet() {}
-  DataSet(const char*);
+  // flag signal pointer ownership
+ DataSet(bool ownership = false): own(ownership) {}
+  DataSet(const char*, bool = false);
   ~DataSet();
 
   void add(Instance*);
