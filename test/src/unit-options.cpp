@@ -68,6 +68,7 @@ TEST_CASE("Basic tests", "[options]") {
   pair<int, int> li = Options::instance()->layers_indices();
   CHECK(li.first == 2); CHECK(li.second == 1);
   vector<int> lnu = Options::instance()->layers_number_units();
+  CHECK(lnu.size() == li.first + li.second);
   CHECK(lnu[0] == 10); CHECK(lnu[1] == 5); CHECK(lnu[2] == 5);
 
   // check application specific configuration values
