@@ -1,4 +1,5 @@
 #include "General.h"
+#include "Options.h"
 #include "InstanceParser.h"
 using namespace std;
 
@@ -14,7 +15,7 @@ Instance* InstanceParser::read(istream& is) {
   // no need to deallocate, whoever calls me get
   // responsibility of the allocated memory for the instance
   _instance = new Instance(_domain, _transduction, _supervised);
- 
+
   read_header(is);
   read_node_io(is);
   read_skeleton(is);
@@ -25,6 +26,7 @@ Instance* InstanceParser::read(istream& is) {
 // TODO: not sure I don't have to read target when not supervised
 // read header (various) i/o dimensions
 istream& InstanceParser::read_header(istream& is) {
+  _num_nodes = -1;
   string id;
   is >> id >> _num_nodes;
   assert(id.size());  
@@ -116,6 +118,11 @@ istream& InstanceParser::read_linear_chain(std::istream& is) {
 istream& InstanceParser::read_doag(std::istream& is) {
   Instance::Skeleton* skel = new Instance::Skeleton(_domain);
 
+  // move to the first non-empty line after node i/o
+  is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  while(is.peek()=='\n')
+    is.get();
+  
   DPAG* doag = new DPAG(_num_nodes);
   string line;
   for(uint i=0; i<_num_nodes; ++i) {
@@ -137,6 +144,11 @@ istream& InstanceParser::read_doag(std::istream& is) {
 
 istream& InstanceParser::read_ugraph(std::istream& is) {
   Instance::Skeleton* skel = new Instance::Skeleton(_domain);
+
+  // move to the first non-empty line after node i/o
+  is.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+  while(is.peek()=='\n')
+    is.get();
 
   DPAG dpag(_num_nodes);
   string line;
