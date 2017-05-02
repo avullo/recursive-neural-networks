@@ -65,7 +65,8 @@ class Node {
   double** _delta_lr;
 
   /* Constructors */
-  Node(const std::vector<float>&);
+  //Node(const std::vector<float>&);
+  Node();
 
   // Must furnish copy constructor to safely 
   // build StructuredInstanceTemplate Node vector

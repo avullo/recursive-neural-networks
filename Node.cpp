@@ -1,4 +1,4 @@
-// #include "require.h"
+#include "General.h"
 #include "Options.h"
 #include "StructuredDomain.h"
 #include "Node.h"
@@ -88,13 +88,14 @@ void Node::deallocHoutputStruct() {
 }
 
 /* Constructor */
-Node::Node(const vector<float>& ei): _norient(num_orientations(Options::instance()->domain())), _encodedInput(ei) {
+Node::Node(): _norient(num_orientations(Options::instance()->domain())) {
   // // Get fundamental parameters from Options class
   pair<int, int> indexes = Options::instance()->layers_indices();
   _r = indexes.first;
   _s = indexes.second;
+  
   _lnunits = Options::instance()->layers_number_units();
-  assert(_lnunits.size() == (unsigned int)(_r + _s));
+  assert(_lnunits.size() == (uint)(_r + _s));
 
   _ios_tr = (Options::instance()->transduction() == IO_ISOMORPH)?true:false;
 
