@@ -53,6 +53,7 @@ class Options {
 
     // the other values must be specified by the user
     _input_dim = _output_dim = _domain_outdegree = _r = _s = 0;
+    _lnunits.clear();
     
     _usage = "[Options]\n"
       "Options:\n"

@@ -1,3 +1,4 @@
+#include "General.h"
 #include "Options.h"
 
 #include <cassert>
@@ -8,8 +9,6 @@
 #include <fstream>
 #include <string>
 using namespace std;
-
-#define PR(x) cout << #x << ": " << x << endl
 
 void Options::parse_args(int argc, char* argv[]) 
   throw(BadOptionSetting) {
@@ -65,6 +64,7 @@ void Options::parse_args(int argc, char* argv[])
     
     pos = line.find("layers_number_units");
     if(pos != string::npos) {
+      _lnunits.clear();
       iss >> dummy >> _r >> _s;
       int i = 0, lnu;
       while(i<_r+_s) {
@@ -72,6 +72,7 @@ void Options::parse_args(int argc, char* argv[])
 	_lnunits.push_back(lnu);
 	++i;
       }
+      assert(_lnunits.size() == (uint)_r+_s);
       continue;
     }
 
