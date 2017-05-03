@@ -9,21 +9,23 @@ DataSet::DataSet(const char* fname, bool ownership): own(ownership) {
   ifstream is(fname);
   assure(is, fname);
 
-  int length;
+  uint length;
   is >> length;
   require(length, "Dataset size == 0");
   
   InstanceParser parser;
-  for(int i=0; i<length; ++i) {
+  for(uint i=0; i<length; ++i) {
     Instance* instance = parser.read(is);
     require(instance, "Error reading instance");
     push_back(instance);
   }
+  is.close();
   
   if(!size()) {
     cerr << "Error! Reading " << fname << " results in an empty data set.";
     require(0, "Aborting...");
   }
+  require(length == size(), "Error: mismatch in reading declared number of instances");
 }
 
 DataSet::~DataSet() {

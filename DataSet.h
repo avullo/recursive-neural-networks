@@ -13,8 +13,8 @@ class DataSet: public std::vector<Instance*> {
   bool own;
  public:
   // flag signal pointer ownership
- DataSet(bool ownership = false): own(ownership) {}
-  DataSet(const char*, bool = false);
+ DataSet(bool ownership = true): own(ownership) {}
+  DataSet(const char*, bool = true);
   ~DataSet();
 
   void add(Instance*);
