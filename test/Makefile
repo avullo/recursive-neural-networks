@@ -12,7 +12,8 @@ SOURCES = src/unit.cpp \
 	src/unit-dpag.cpp \
 	src/unit-domain.cpp \
 	src/unit-options.cpp \
-	src/unit-instance.cpp
+	src/unit-instance.cpp \
+	src/unit-dataset.cpp
 
 OBJECTS = $(SOURCES:.cpp=.o)
 
