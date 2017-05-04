@@ -23,6 +23,10 @@ class InstanceParser {
   std::istream& read_doag(std::istream&);
   std::istream& read_ugraph(std::istream&);
   std::istream& read_grid2d(std::istream&);
+
+  // prevent assignment and copy construction
+  InstanceParser(const InstanceParser&);
+  InstanceParser& operator=(const InstanceParser&);
   
  public:
   InstanceParser(bool = true /* supervised (i,e. labelled) */);

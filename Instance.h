@@ -61,6 +61,10 @@ class Instance {
     DPAG** _orientations; // each orientation can be defined as a DPAG
     std::vector<int>* _top_orders;
 
+    // prevent assignment and copy construction
+    Skeleton(const Skeleton&);
+    Skeleton& operator=(const Skeleton&);
+    
   public:
     Skeleton(Domain);
     // TODO: copy constructor
@@ -75,6 +79,10 @@ class Instance {
   Skeleton* _skel;
 
   friend class InstanceParser;
+
+  // prevent assignment and copy-construction
+  Instance(const Instance&);
+  Instance& operator=(const Instance&);
   
  public:
   
