@@ -21,7 +21,7 @@ TESTCASES = $(patsubst src/unit-%.cpp,test-%,$(wildcard src/unit-*.cpp))
 
 # main rules
 
-all: $(TESTCASES)
+all: $(TESTCASES) rnn_unit
 
 clean:
 	rm -rf rnn_unit $(OBJECTS) $(TESTCASES) *~
