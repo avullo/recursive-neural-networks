@@ -9,10 +9,16 @@
 */
 
 class Node {
+  /*
+    _r: the number of layers of the NNs implementing the state transition functions
+    _s: the number of layers of the NN implementing the node output function
+   */
   int _r, _s;
-  std::vector<int> _lnunits;
-  bool _ios_tr;
-  int _norient;
+  
+  // the number of units in each layer of the state transition and node output functions
+  std::vector<int> _lnunits; 
+  bool _ios_tr; // whether learning is for an IO-ISOMORPH transduction
+  int _norient; // the number of data structure possible orientation, i.e. number of state transition functions
   
   // Allocation specific routines
   void allocFoldingOutputStruct(double***, double**);
@@ -25,10 +31,6 @@ class Node {
   // Prevent Assignment
   Node& operator=(const Node&);
  public:
-  /* // Useful quantities */
-/*   int _v; // Valence of the domain (max outdegree of a node) */
-/*   int _r; // Repres. layer (its number of units, m, indicates dimension of a substructure enconding */
-/*   int _s; // Number of layers of h map. */
 
   // A simple vector to map symbolic
   // label of a node to numeric codes
@@ -37,11 +39,6 @@ class Node {
   // Vector of target output label, in case
   // we implement an io-iosomorf trasduction
   std::vector<float> _otargets;
-
-  // Store number of units per folding layer. It is responsibility
-  // of pattern costruction routine to synchronize this data
-  // with that of the recursive neural network that process it.
-  /* std::vector<int> _lnunits; */
 
   /*
     Store ouput activations for each layer and for each folding part.
