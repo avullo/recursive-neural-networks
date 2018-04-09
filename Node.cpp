@@ -8,23 +8,9 @@
 #include <iostream>
 using namespace std;
 
-//#define WFP int z; cin >> z
-
 /*** Private functions ***/
 
 /* Allocation routines */
-// void Node::allocStructs(const vector<int>& _lnunits, int _r, int _s, bool _ios_tr, bool _process_dr) {
-//   allocFoldingOutputStruct(_lnunits, _r, &_f_layers_activations, &_f_delta_lr);
-  
-//   if(_process_dr) {
-//     allocFoldingOutputStruct(_lnunits, _r, &_b_layers_activations, &_b_delta_lr);
-//     allocFoldingOutputStruct(_lnunits, _r, &_j_layers_activations, &_j_delta_lr);
-//     allocFoldingOutputStruct(_lnunits, _r, &_k_layers_activations, &_k_delta_lr);
-//   }
-  
-//   if(_ios_tr) 
-//     allocHoutputStruct(_lnunits, _r, _s);
-// }
 
 void Node::allocFoldingOutputStruct(double*** layers_activations, double** delta_lr) {
   // We assume _lnunits[0.._r-1] vector contains number of
@@ -53,18 +39,6 @@ void Node::allocHoutputStruct() {
 }
 
 /* Deallocation routines */
-// void Node::deallocStructs(const vector<int>& _lnunits, int _r, int _s, bool _ios_tr, bool _process_dr) {
-//   deallocFoldingOutputStruct(_lnunits, _r, &_f_layers_activations, &_f_delta_lr);
-
-//   if(_process_dr) {
-//     deallocFoldingOutputStruct(_lnunits, _r, &_b_layers_activations, &_b_delta_lr);
-//     deallocFoldingOutputStruct(_lnunits, _r, &_j_layers_activations, &_j_delta_lr);
-//     deallocFoldingOutputStruct(_lnunits, _r, &_k_layers_activations, &_k_delta_lr);
-//   }
-
-//   if(_ios_tr)
-//     deallocHoutputStruct(_lnunits, _s);
-// }
 
 void Node::deallocFoldingOutputStruct(double*** layers_activations, double** delta_lr) {
   for(int k=0; k<_r; k++) {
@@ -89,7 +63,7 @@ void Node::deallocHoutputStruct() {
 
 /* Constructor */
 Node::Node(): _norient(num_orientations(Options::instance()->domain())) {
-  // // Get fundamental parameters from Options class
+  // Get fundamental parameters from Options class
   pair<int, int> indexes = Options::instance()->layers_indices();
   _r = indexes.first;
   _s = indexes.second;
