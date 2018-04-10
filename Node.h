@@ -82,8 +82,11 @@ class Node {
   void resetValues();
 
   std::vector<float> input() { return _encodedInput; }
+  int input_dim() const { return _encodedInput.size(); }
   void load_input(const std::vector<float>& input) { _encodedInput = input; }
+
   std::vector<float> target() { return _otargets; }
+  int output_dim() const { return _otargets.size(); }
   void load_target(const std::vector<float>& otargets) { _otargets = otargets; };
 };
 

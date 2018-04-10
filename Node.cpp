@@ -116,9 +116,9 @@ Node::~Node() {
 
 void Node::resetValues() {
   for(int i=0; i<_norient; ++i) {
-    for(int k=0; k<_r; k++) {
+    for(int k=0; k<_r; k++)
       memset(_layers_activations[i][k], 0, _lnunits[k]*sizeof(double));
-    }
+
     memset(_delta_lr[i], 0, (_lnunits[_r-1])*sizeof(double));
   }
   
