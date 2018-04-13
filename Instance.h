@@ -67,8 +67,6 @@ class Instance {
     
   public:
     Skeleton(Domain);
-    // TODO: copy constructor
-    // Skeleton(const Skeleton&);
     ~Skeleton();
 
     void orientation(uint, DPAG*);
@@ -88,8 +86,7 @@ class Instance {
   
  Instance(Domain domain, Transduction transduction, bool supervised):
   _domain(domain), _transduction(transduction), _supervised(supervised), _skel(NULL) {}
-  // TODO: copy constructor
-  // Instance(const Instance&);
+
   virtual ~Instance() {
     for(std::vector<Node*>::iterator it=_nodes.begin(); it!=_nodes.end(); ++it) {
       delete *it;
@@ -138,6 +135,8 @@ class Instance {
     assert(_nodes[n] != NULL);
     _nodes[n]->load_target(target);
   }
+  std::vector<Node*> nodes() { return _nodes; }
+  
   // TODO: these are temporary implementations, it depends on how the Node interface develops
   /* int node_input_dim() const { return _nodes[0]->_encodedeInput.size(); } */
   /* int node_output_dim() const { return _nodes[0]->_otargets.size(); } */
@@ -154,6 +153,10 @@ class Instance {
   std::vector<int> topological_order(uint) const;
   const std::vector<int>* topological_orders() { return _skel->_top_orders; }
 
+  void resetNodeOutputActivations() {
+    for(std::vector<Node*>::iterator it=_nodes.begin(); it!=_nodes.end(); ++it)
+      (*it)->resetValues();
+  }
 };
 
 #endif // _INSTANCE_H_
