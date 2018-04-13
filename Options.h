@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <iostream>
 
 /* 
 
@@ -49,7 +50,7 @@ class Options {
     // default values for global configuration parameters
     _domain = DOAG;
     _transduction = SUPER_SOURCE;
-    _precision = 3;
+    _precision = std::cout.precision();
 
     // the other values must be specified by the user
     _input_dim = _output_dim = _domain_outdegree = _r = _s = 0;
