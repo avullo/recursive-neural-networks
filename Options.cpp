@@ -106,6 +106,19 @@ void Options::parse_args(int argc, char* argv[])
       else { throw BadOptionSetting("Transduction type not recognized"); }
       continue;
     }
+
+    pos = line.find("problem");
+    if(pos != string::npos) {
+      string prob;
+      iss >> dummy >> prob;
+
+      if(prob == "REGRESSION") { _problem = REGRESSION; }
+      else if(prob == "BINARYCLASS") { _problem = BINARYCLASS; }
+      else if(prob == "MULTICLASS") { _problem = MULTICLASS; }
+      else { throw BadOptionSetting("Problem type not recognized"); }
+      continue;
+    }
+
   }
 
   // raise exception if config parameters are not set
@@ -121,7 +134,10 @@ void Options::parse_args(int argc, char* argv[])
     throw BadOptionSetting("Must set number of layers in transforming network to a positive value");
   if(!_lnunits.size())
     throw BadOptionSetting("Couldn't set architecture of the folding and tranforming networks");
- 
+  if(_transduction != SUPER_SOURCE || _transduction != IO_ISOMORPH)
+    throw BadOptionSetting("Invalid transduction type");
+  if(_problem & ~(REGRESSION | BINARYCLASS | MULTICLASS))
+    throw BadOptionSetting("Invalid problem type");
 }
 
 void RNNTrainingOptions::parse_args(int argc, char* argv[]) 

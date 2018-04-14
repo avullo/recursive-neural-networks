@@ -36,6 +36,7 @@ class Options {
   int _precision;
   Domain _domain;
   Transduction _transduction;
+  Problem _problem;
   
   // a map to store all arguments value in the form of strings.
   // clients have to convert to the appropriate type before using an argument
@@ -50,6 +51,7 @@ class Options {
     // default values for global configuration parameters
     _domain = DOAG;
     _transduction = SUPER_SOURCE;
+    _problem = UNDEFINED;
     _precision = std::cout.precision();
 
     // the other values must be specified by the user
@@ -100,7 +102,8 @@ class Options {
   void domain(Domain d) { _domain = d; }
   Transduction transduction() const { return _transduction; }
   void transduction(Transduction t) { _transduction = t; }
- 
+  Problem problem() const { return _problem; }
+
 };
 
 // We define classes derived from general Options
