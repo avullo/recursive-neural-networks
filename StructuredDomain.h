@@ -4,10 +4,10 @@
 #include <stdexcept>
 
 /*
-
-  Define aspects related to the representation of structured domains.
-  
-*/
+ *
+ * Define aspects related to the representation of structured domains.
+ *
+ */
 
 /*
   List supported structured domain types:
@@ -39,5 +39,14 @@ typedef enum Transduction {
   IO_ISOMORPH
 } Transduction;
 
+/*
+ * Types of learning problems on a structured domain
+ */
+typedef enum {
+  UNDEFINED   = 1<<0,
+  REGRESSION  = 1<<1,
+  BINARYCLASS = 1<<2,
+  MULTICLASS  = 1<<3,
+} Problem;
 
 #endif // _STRUCTURED_DOMAIN_H_
