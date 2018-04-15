@@ -8,25 +8,53 @@ DEFINES  = -DDEBUG
 # Dependency on Boost library
 INCLUDES = -I/usr/include/boost
 WARNINGS = -Wall
-CODEOPT  = # -O3
+CODEOPT  = # -ftemplate-depth-30 -fpermissive -O3
 DEBUG    = -g
-CXXFLAGS = $(WARNINGS)
-CPPFLAGS = $(DEFINES) $(INCLUDES) $(CODEOPT) $(DEBUG)
+CXXFLAGS = $(DEFINES) $(WARNINGS)
+CPPFLAGS = $(INCLUDES) $(CODEOPT) $(DEBUG)
+PROFILE  = # -pg
 LDFLAGS  =
+LIBS     = 
+LD       = $(CXX)
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(PROFILE) -c $< -o $@
 
-SOURCES = DPAG.cpp StructuredDomain.cpp Node.cpp Instance.cpp InstanceParser.cpp DataSet.cpp Options.cpp
+SOURCES.cpp = \
+	DPAG.cpp \
+	DataSet.cpp \
+	Instance.cpp \
+	InstanceParser.cpp \
+	Node.cpp \
+	Options.cpp \
+	StructuredDomain.cpp
 
-OBJECTS = $(SOURCES:.cpp=.o)
+SOURCES.h= \
+	ActivationFunction.h \
+	DPAG.h \
+	DataSet.h \
+	ErrorMinimizationProcedure.h \
+	General.h \
+	Instance.h \
+	InstanceParser.h \
+	Node.h \
+	Options.h \
+	RecurisveNN.h \
+	StructuredDomain.h \
+	require.h
+
+OBJECTS = $(SOURCES.cpp:%.cpp=%.o)
+
+TARGETS = generateParityGraphs
 
 # main targets
-# NOTE: just compile into objects until we have some mains
-all: $(OBJECTS)
+all: ${TARGETS}
+
+generateParityGraphs: generateParityGraphs.o
+	$(LD) generateParityGraphs.o -o $@ $(PROFILE) $(LDFLAGS)
 
 clean:
-	rm -rf *.o *~
+	rm -rf *.o *.bak *~ generateParityGraphs
 	$(MAKE) clean -C test
 
 # unit tests
@@ -37,3 +65,6 @@ tests:
 ## run unit tests
 check:
 	$(MAKE) check -C test
+
+depend:
+	makedepend -- $(CXXFLAGS) $(CPPFLAGS) generateParityGraphs.cpp --
