@@ -54,6 +54,6 @@ std::vector<int> topological_sort(const DPAG&);
 void build_grid(const std::string&, int, int, DPAG*);
 
 // print DPAG to output stream
-void print(const DPAG& dpag, std::ostream&);
+void printDPAG(const DPAG& dpag, std::ostream&);
 
 #endif // _DPAG_H_

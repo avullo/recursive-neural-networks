@@ -179,7 +179,7 @@ void build_grid(const std::string& direction, int rows, int cols, DPAG *dpag) {
   }
 }
 
-void print(const DPAG& dpag, ostream& out) {
+void printDPAG(const DPAG& dpag, ostream& out) {
   VertexId vertex_id = boost::get(boost::vertex_index, dpag);
   //EdgeId edge_id = boost::get(edge_ordered_tuple_index_t(), *dpag);
   cEdgeId edge_id = boost::get(boost::edge_index, dpag);
