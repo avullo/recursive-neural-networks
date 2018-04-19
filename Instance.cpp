@@ -1,5 +1,7 @@
 #include "Instance.h"
+
 #include <cassert>
+#include <algorithm>
 using namespace std;
 
 Instance::Skeleton::Skeleton(Domain domain): _i(-1), _o(-1), _norient(num_orientations(domain)) {
@@ -46,4 +48,21 @@ vector<int> Instance::topological_order(uint index) const {
   assert(index>=0 && index<_skel->_norient);
 
   return _skel->_top_orders[index];
+}
+
+void Instance::print(ostream& os) {
+  os << "-- " << id() << " --" << endl << endl;
+  for(uint i=0; i<num_nodes(); ++i) {
+    os << i << '\t';
+    Node* n = node(i);
+    vector<float> input = n->input();
+    vector<float> target = n->target();
+    copy(input.begin(), input.end(), ostream_iterator<float>(os, ","));
+    os << " | ";
+    copy(target.begin(), target.end(), ostream_iterator<float>(os, ","));
+    os << endl;
+  }
+
+  printDPAG(*orientation(0), os);
+  os << endl;
 }

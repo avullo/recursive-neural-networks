@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 class InstanceParser;
 
@@ -157,6 +158,8 @@ class Instance {
     for(std::vector<Node*>::iterator it=_nodes.begin(); it!=_nodes.end(); ++it)
       (*it)->resetValues();
   }
+
+  void print(std::ostream& = std::cout);
 };
 
 #endif // _INSTANCE_H_
