@@ -45,21 +45,27 @@ SOURCES.h= \
 
 OBJECTS = $(SOURCES.cpp:%.cpp=%.o)
 
-TARGETS = generateParityGraphs
+TARGETS = rnnTrain generateParityGraphs
 
 # main targets
 all: ${TARGETS}
+
+rnnTrain:  $(OBJECTS) rnnTrain.o
+	$(LD) $(OBJECTS) rnnTrain.o $(LIBS) -o $@ $(PROFILE) $(LDFLAGS)
+
+rnnTrain.o:  $(SOURCES.cpp) rnnTrain.cpp
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(PROFILE) -c rnnTrain.cpp -o $@
 
 generateParityGraphs: generateParityGraphs.o
 	$(LD) generateParityGraphs.o -o $@ $(PROFILE) $(LDFLAGS)
 
 clean:
-	rm -rf *.o *.bak *~ generateParityGraphs
+	rm -rf *.o *.bak *~ $(TARGETS)
 	$(MAKE) clean -C test
 
 # unit tests
 ## build unit tests into one single command
-tests:
+tests: ${OBJECTS}
 	$(MAKE) rnn_unit -C test
 
 ## run unit tests
@@ -67,4 +73,4 @@ check:
 	$(MAKE) check -C test
 
 depend:
-	makedepend -- $(CXXFLAGS) $(CPPFLAGS) generateParityGraphs.cpp --
+	makedepend -- $(CXXFLAGS) $(CPPFLAGS) rnnTrain.cpp generateParityGraphs.cpp --
