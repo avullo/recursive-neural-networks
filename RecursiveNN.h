@@ -13,6 +13,15 @@
 using std::cout;
 using std::endl;
 
+// Generate a random number between 0.0 and 1.0
+double rnd01() {
+  return ((double) rand() / (double) RAND_MAX);
+}
+
+// Generate a random number between -1.0 and +1.0
+double nrnd01() {
+  return ((rnd01() * 2.0) - 1.0);
+}
 
 /*
   Declaration and non-inline definition of the class 
