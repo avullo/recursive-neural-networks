@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace std;
 
-DataSet::DataSet(const char* fname, bool ownership): own(ownership) {
+DataSet::DataSet(const char* fname, bool own): _own(own), _nnodes(0) {
   ifstream is(fname);
   assure(is, fname);
 
@@ -18,6 +18,7 @@ DataSet::DataSet(const char* fname, bool ownership): own(ownership) {
     Instance* instance = parser.read(is);
     require(instance, "Error reading instance");
     push_back(instance);
+    num_total_nodes += instance->num_nodes();
   }
   is.close();
   
@@ -29,7 +30,7 @@ DataSet::DataSet(const char* fname, bool ownership): own(ownership) {
 }
 
 DataSet::~DataSet() {
-  if(own) {
+  if(_own) {
     iterator it = begin();
     while(it != end()) {
       delete *it; *it = 0;
