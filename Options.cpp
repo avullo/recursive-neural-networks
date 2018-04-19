@@ -134,8 +134,8 @@ void Options::parse_args(int argc, char* argv[])
     throw BadOptionSetting("Must set number of layers in transforming network to a positive value");
   if(!_lnunits.size())
     throw BadOptionSetting("Couldn't set architecture of the folding and tranforming networks");
-  if(_transduction != SUPER_SOURCE || _transduction != IO_ISOMORPH)
-    throw BadOptionSetting("Invalid transduction type");
+  if(_transduction != SUPER_SOURCE && _transduction != IO_ISOMORPH)
+    throw BadOptionSetting("Invalid transduction type: "  + _transduction);
   if(_problem & ~(REGRESSION | BINARYCLASS | MULTICLASS))
     throw BadOptionSetting("Invalid problem type");
 }
@@ -167,14 +167,12 @@ void RNNTrainingOptions::parse_args(int argc, char* argv[])
 	args["epochs"] = string(argv[++i]);
       } else if(arg == "-s") {
 	args["savedelta"] = string(argv[++i]);
-      } else if(arg == "-d") {
-	args["datasetdir"] = string(argv[++i]);
       } else if(arg == "-r") {
 	args["random_net"] = string("1");
       } else if(arg == "-o") {
 	args["onlinelearning"] = string("1");
-      } else if(arg == "--train-set") {
-	args["train_set"] = string(argv[++i]);
+      } else if(arg == "--training-set") {
+	args["training_set"] = string(argv[++i]);
       } else if(arg == "--test-set") {
 	args["test_set"] = string(argv[++i]);
       } else if(arg == "--validation-set") {
