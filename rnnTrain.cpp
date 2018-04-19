@@ -109,11 +109,11 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
     }
 
     double error;
-    double error_training_set = rnn->computeErrorOnDataSet(trainingSet);
+    double error_training_set = rnn->computeErrorOnDataset(trainingSet);
     os << "E_training = " << error_training_set << '\t';
     
     if(validationSet) {
-      double error_validation_set = rnn->computeErrorOnDataSet(validationSet);
+      double error_validation_set = rnn->computeErrorOnDataset(validationSet);
       error = error_validation_set;
       os << "E_validation = " << error_validation_set;
     } else
