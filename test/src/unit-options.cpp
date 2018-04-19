@@ -45,19 +45,18 @@ TEST_CASE("Basic tests", "[options]") {
   
   CHECK(Options::instance()->usage() == string("dummy [Options]\n"
   					       "Options:\n"
-  					       "       -c <global configurations file> (default is ./global.cnf)\n"
-  					       "       -n <network file>\n"
+  					       "       -c <global configurations file> (default: .rnnrc in current directory)\n"
+  					       "       -n <network file> [REQUIRED]\n"
   					       "       -l <learning rate> (default is 1e-3)\n"
   					       "       --alpha <momentum coefficient> (default is 1e-1)\n"
   					       "       -ni <regularization coefficient> (default is 0: no regularization)\n"
   					       "       -o on line learning flag (default is batch)\n"
   					       "       -e <number of epochs> (default is 1000)\n"
   					       "       -s <number of epochs between saves of network> (default is 100)\n"
-  					       "       -d <data directory>\n"
   					       "       -r training start with random weights (default is read network from file)\n"
-  					       "       --train-set <training set file in data dir>\n"
-  					       "       --test-set  <test set file in data directory>\n"
-  					       "       --validation-set <validation set file in data directory>\n"
+  					       "       --training-set <training set file> [REQUIRED]\n"
+  					       "       --test-set  <test set file> [OPTIONAL]\n"
+  					       "       --validation-set <validation set file> [OPTIONAL]\n"
   					       "       --threshold-error <threshold error to be used to stop training> (default is 1e-3)\n"));
   // check values read from configuration file
   CHECK(Options::instance()->domain() == SEQUENCE);
