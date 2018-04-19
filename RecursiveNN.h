@@ -184,6 +184,7 @@ class RecursiveNN {
 
   // Compute error for a structure
   double computeError(const Instance*);
+  double computeErrorOnDataset(const DataSet*);
 
   // Compute the (squared norm) of the weights, necessary in order
   // to compute the error when regularization is used (weight decay).
@@ -1154,6 +1155,19 @@ template<class HA_Function, class OA_Function, class EMP>
 }
 
 template<class HA_Function, class OA_Function, class EMP>
+  double RecursiveNN<HA_Function, OA_Function, EMP>::computeErrorOnDataset(const DataSet* dataset) {
+
+  double error = .0;
+  for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it)
+    error += computeError(*it);
+
+  if(_ss_tr && _problem & REGRESSION)
+    error /= dataset->size();
+
+  return error;
+}
+
+template<class HA_Function, class OA_Function, class EMP>
   void RecursiveNN<HA_Function, OA_Function, EMP>::backPropOnFoldingPart(Instance* instance, int o) {
 
   DPAG* dpag = instance->orientation(o);
@@ -1693,7 +1707,10 @@ template<class HA_Function, class OA_Function, class EMP>
 	require(0, "Unknown problem");
     } 
   }
-  
+
+  if(_problem & REGRESSION)
+    error /= instance->num_nodes();
+
   return error;
 }
 
