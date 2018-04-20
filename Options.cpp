@@ -11,7 +11,10 @@ using namespace std;
 
 void Options::parse_args(int argc, char* argv[]) 
   throw(BadOptionSetting) {
-  
+
+  // prepend program name to usage string
+  _usage = string(argv[0]) + " " + _usage;
+
   // parse command line switches, search only for global configuration file option
   // derived classes will consider application specific flags
   for(int i=1; i<argc; i++) {
@@ -31,7 +34,7 @@ void Options::parse_args(int argc, char* argv[])
   // read global configuration file and set globally visible parameters
   ifstream ifs((*it).second.c_str());
   if(!ifs)
-    throw BadOptionSetting(string("Could not open ") + (*it).second.c_str());
+    throw BadOptionSetting(string("Could not open ") + (*it).second.c_str() + "\n\n" + _usage);
   
   string line, dummy;
   while(getline(ifs, line)) {
@@ -142,7 +145,7 @@ void Options::parse_args(int argc, char* argv[])
 
 void RNNTrainingOptions::parse_args(int argc, char* argv[]) 
   throw(Options::BadOptionSetting) {
-
+  
   // parse configuration file first
   Options::parse_args(argc, argv);
  
@@ -185,9 +188,6 @@ void RNNTrainingOptions::parse_args(int argc, char* argv[])
       }
     }
   }
-
-  // prepend program name to usage string
-  _usage = string(argv[0]) + " " + _usage;
 }
 
 Options* Options::instance() throw(BadOptionSetting) {
