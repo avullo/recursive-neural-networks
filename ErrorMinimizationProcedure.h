@@ -125,12 +125,12 @@ class MGradientDescent {
   std::vector<int> _lnunits;
 
   void allocFoldingPart(double**** layers_w) {
-    (*layers_w) = new (double**)[_r];
+    (*layers_w) = new double**[_r];
   
     // Allocate weights and gradient components matrixes
     // for f folding part. Connections from input layer
     // have special dimensions.
-    (*layers_w)[0] = new (double*)[(_n + _v * _m) + 1];
+    (*layers_w)[0] = new double*[(_n + _v * _m) + 1];
 
     for(int i=0; i<(_n+_v*_m) + 1; i++) {
       (*layers_w)[0][i] = new double[_lnunits[0]];
@@ -143,7 +143,7 @@ class MGradientDescent {
     for(int k=1; k<_r; k++) {
       // Allocate space for weight&delta matrix between layer i-1 and i.
       // Automatically include space for threshold unit in layer i-1
-      (*layers_w)[k] = new (double*)[_lnunits[k-1] + 1];
+      (*layers_w)[k] = new double*[_lnunits[k-1] + 1];
 
       for(int i=0; i<_lnunits[k-1]+1; i++) {
 	(*layers_w)[k][i] = new double[_lnunits[k]];
@@ -155,12 +155,12 @@ class MGradientDescent {
   }
 
   void allocSSPart() {
-    _g_layers_old_deltas_w = new (double**)[_s];
+    _g_layers_old_deltas_w = new double**[_s];
 
     // Allocate weights and gradient components matrixes
     // for g transforming part. Connections from input layers
     // have special dimensions.
-    _g_layers_old_deltas_w[0] = new (double*)[_norient*_m + 1];
+    _g_layers_old_deltas_w[0] = new double*[_norient*_m + 1];
 
     for(int i=0; i<_norient*_m + 1; i++) {
       _g_layers_old_deltas_w[0][i] = new double[_lnunits[_r]];
@@ -173,7 +173,7 @@ class MGradientDescent {
     for(int k=1; k<_s; k++) {
       // Allocate space for weight&gradient matrixes between layer i-1 and i.
       // Automatically include space for threshold unit in layer i-1
-      _g_layers_old_deltas_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
+      _g_layers_old_deltas_w[k] = new double*[_lnunits[_r+k-1] + 1];
 
       for(int i=0; i<_lnunits[_r+k-1]+1; i++) {
 	_g_layers_old_deltas_w[k][i] = new double[_lnunits[_r+k]];
@@ -185,11 +185,11 @@ class MGradientDescent {
   }
 
   void allocIOSPart() {
-    _h_layers_old_deltas_w = new (double**)[_s];
+    _h_layers_old_deltas_w = new double**[_s];
     
     // Allocate weights and gradient components matrixes
     // for h map. Connections from input layers have special dimensions.
-    _h_layers_old_deltas_w[0] = new (double*)[_norient*_m + _n + 1];
+    _h_layers_old_deltas_w[0] = new double*[_norient*_m + _n + 1];
 
     for(int i=0; i<_norient*_m + _n + 1; i++) {
       _h_layers_old_deltas_w[0][i] = new double[_lnunits[_r]];
@@ -202,7 +202,7 @@ class MGradientDescent {
     for(int k=1; k<_s; k++) {
       // Allocate space for weight&gradient matrixes between layer i-1 and i.
       // Automatically include space for threshold unit in layer i-1
-      _h_layers_old_deltas_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
+      _h_layers_old_deltas_w[k] = new double*[_lnunits[_r+k-1] + 1];
 
       for(int i=0; i<_lnunits[_r+k-1]+1; i++) {
 	_h_layers_old_deltas_w[k][i] = new double[_lnunits[_r+k]];
@@ -322,7 +322,7 @@ template<typename T1, typename T2, typename T3, template<typename, typename, typ
   _n = rnn->_n, _v = rnn->_v, _m = rnn->_m, _r = rnn->_r, _s = rnn->_s;
   _lnunits = rnn->_lnunits;
 
-  _layers_old_delta_w = new double***[_norient];
+  _layers_old_deltas_w = new double***[_norient];
   for(int i=0; i<_norient; ++i)
     allocFoldingPart(&(_layers_old_deltas_w[i]));
   
