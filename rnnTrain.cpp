@@ -50,7 +50,7 @@ void computeErrorOnDataset();
 void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, ostream& os = cout) {
   // Get important training parameters
   bool onlinelearning = (atoi((Options::instance()->get_parameter("onlinelearning")).c_str()))?true:false;
-  bool random_net = (atoi((Options::instance()->get_parameter("random_net")).c_str()))?true:false;
+  // bool random_net = (atoi((Options::instance()->get_parameter("random_net")).c_str()))?true:false;
   
   int epochs = atoi((Options::instance()->get_parameter("epochs")).c_str());
   int savedelta = atoi((Options::instance()->get_parameter("savedelta")).c_str());
@@ -80,9 +80,7 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
   double threshold_error = atof((Options::instance()->get_parameter("threshold_error")).c_str());
 
   for(int epoch = 1; epoch<=epochs; epoch++) {
-    double error_training_set = .0, error_validation_set = .0;
-    
-    os << endl << "Epoch " << epoch << '\t';
+    os << "Epoch " << epoch << '\t';
     
     for(DataSet::iterator it=trainingSet->begin(); it!=trainingSet->end(); ++it) {
       // (*it)->print(os);
@@ -129,7 +127,7 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
     
     // stopping criterion based on error threshold
     if(fabs(prev_error - error) < threshold_error) {
-      os << endl << << endl << "Network error decay below given threshold. Stopping training..." << endl;
+      os << endl << endl << "Network error decay below given threshold. Stopping training..." << endl;
       break;
     }
 
