@@ -6,10 +6,14 @@
 #include "ActivationFunctions.h"
 #include "ErrorMinimizationProcedure.h"
 #include "DataSet.h"
+
 #include <ctime>
+#include <cfloat>
+
 #include <vector>
 #include <fstream>
 #include <iostream>
+
 using std::cout;
 using std::endl;
 
@@ -40,6 +44,7 @@ class RecursiveNN {
   
   bool _ss_tr; // implement a super-source transduction
   bool _ios_tr; // implement an io-isomorf structural trasduction
+  Problem _problem; // type of learning problem
   
   // number of orientations (i.e. state transition functions)
   // to consider for one particular domain
@@ -144,8 +149,8 @@ class RecursiveNN {
   void gBackPropagateError(Instance*);
   void hBackPropagateError(Node*);
 
-  double computeSSError(const Instance*);
-  double computeIOSError(const Instance*);
+  double computeSSError(Instance*);
+  double computeIOSError(Instance*);
   
  public:
   /*
@@ -183,8 +188,8 @@ class RecursiveNN {
   void saveParameters(const char*);
 
   // Compute error for a structure
-  double computeError(const Instance*);
-  double computeErrorOnDataset(const DataSet*);
+  double computeError(Instance*);
+  double computeErrorOnDataset(DataSet*);
 
   // Compute the (squared norm) of the weights, necessary in order
   // to compute the error when regularization is used (weight decay).
@@ -203,11 +208,11 @@ class RecursiveNN {
 template<class HA_Function, class OA_Function, class EMP>
 void RecursiveNN<HA_Function, OA_Function, EMP>::allocFoldingParts(double**** layers_w, double**** prev_layers_w, double**** layers_gradient_w, double*** delta_layers) {
   // Assume constructor has initialized required dimension quantities
-  *layers_w = new (double**)[_r];
-  *prev_layers_w = new (double**)[_r];
-  *layers_gradient_w = new (double**)[_r];
+  *layers_w = new double**[_r];
+  *prev_layers_w = new double**[_r];
+  *layers_gradient_w = new double**[_r];
   if(_r > 1) {
-    *delta_layers = new (double*)[_r-1];
+    *delta_layers = new double*[_r-1];
     (*delta_layers)[0] = new double[_lnunits[0]];
     memset((*delta_layers)[0], 0, (_lnunits[0]) * sizeof(double));
   }
@@ -215,9 +220,9 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::allocFoldingParts(double**** la
   // Allocate weights and gradient components matrixes
   // for f folding part. Connections from input layer
   // have special dimensions.
-  (*layers_w)[0] = new (double*)[(_n+_v*_m) + 1];
-  (*prev_layers_w)[0] = new (double*)[(_n+_v*_m) + 1];
-  (*layers_gradient_w)[0] = new (double*)[(_n+_v*_m) + 1];
+  (*layers_w)[0] = new double*[(_n+_v*_m) + 1];
+  (*prev_layers_w)[0] = new double*[(_n+_v*_m) + 1];
+  (*layers_gradient_w)[0] = new double*[(_n+_v*_m) + 1];
 
   for(int i=0; i<(_n+_v*_m) + 1; i++) {
     (*layers_w)[0][i] = new double[_lnunits[0]];
@@ -238,9 +243,9 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::allocFoldingParts(double**** la
   for(int k=1; k<_r; k++) {
     // Allocate space for weight&delta matrix between layer i-1 and i.
     // Automatically include space for threshold unit in layer i-1
-    (*layers_w)[k] = new (double*)[_lnunits[k-1] + 1];
-    (*prev_layers_w)[k] = new (double*)[_lnunits[k-1] + 1];
-    (*layers_gradient_w)[k] = new (double*)[_lnunits[k-1] + 1];
+    (*layers_w)[k] = new double*[_lnunits[k-1] + 1];
+    (*prev_layers_w)[k] = new double*[_lnunits[k-1] + 1];
+    (*layers_gradient_w)[k] = new double*[_lnunits[k-1] + 1];
 
     for(int i=0; i<_lnunits[k-1]+1; i++) {
       (*layers_w)[k][i] = new double[_lnunits[k]];
@@ -268,18 +273,18 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::allocFoldingParts(double**** la
 template<class HA_Function, class OA_Function, class EMP>
 void RecursiveNN<HA_Function, OA_Function, EMP>::allocSSPart() {
   // Assume constructor has initialized required dimension quantities
-  _g_layers_w = new (double**)[_s];
-  _prev_g_layers_w = new (double**)[_s];
-  _g_layers_gradient_w = new (double**)[_s];
-  _g_layers_activations = new (double*)[_s];
-  _delta_g_layers = new (double*)[_s];
+  _g_layers_w = new double**[_s];
+  _prev_g_layers_w = new double**[_s];
+  _g_layers_gradient_w = new double**[_s];
+  _g_layers_activations = new double*[_s];
+  _delta_g_layers = new double*[_s];
 
   // Allocate weights and gradient components matrixes
   // for g transforming part. Connections from input layers
   // have special dimensions.
-  _g_layers_w[0] = new (double*)[_norient*_m + 1];
-  _prev_g_layers_w[0] = new (double*)[_norient*_m + 1];
-  _g_layers_gradient_w[0] = new (double*)[_norient*_m + 1];
+  _g_layers_w[0] = new double*[_norient*_m + 1];
+  _prev_g_layers_w[0] = new double*[_norient*_m + 1];
+  _g_layers_gradient_w[0] = new double*[_norient*_m + 1];
   
   // Allocate and reset g layers output activation units and delta values.
   _g_layers_activations[0] = new double[_lnunits[_r]];
@@ -307,9 +312,9 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::allocSSPart() {
   for(int k=1; k<_s; k++) {
     // Allocate space for weight&gradient matrixes between layer i-1 and i.
     // Automatically include space for threshold unit in layer i-1
-    _g_layers_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
-    _prev_g_layers_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
-    _g_layers_gradient_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
+    _g_layers_w[k] = new double*[_lnunits[_r+k-1] + 1];
+    _prev_g_layers_w[k] = new double*[_lnunits[_r+k-1] + 1];
+    _g_layers_gradient_w[k] = new double*[_lnunits[_r+k-1] + 1];
 
     // Allocate and reset g layers output activation units and delta layers values.
     _g_layers_activations[k] = new double[_lnunits[_r+k]];
@@ -339,17 +344,17 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::allocSSPart() {
 template<class HA_Function, class OA_Function, class EMP>
 void RecursiveNN<HA_Function, OA_Function, EMP>::allocIOSPart() {
   // Assume constructor has initialized required dimension quantities
-  _h_layers_w = new (double**)[_s];
-  _prev_h_layers_w = new (double**)[_s];
-  _h_layers_gradient_w = new (double**)[_s];
-  _delta_h_layers = new (double*)[_s];
+  _h_layers_w = new double**[_s];
+  _prev_h_layers_w = new double**[_s];
+  _h_layers_gradient_w = new double**[_s];
+  _delta_h_layers = new double*[_s];
 
   // Allocate weights and gradient components matrixes
   // for h transforming part. Connections from input layers
   // have special dimensions.
-  _h_layers_w[0] = new (double*)[_norient*_m + _n + 1];
-  _prev_h_layers_w[0] = new (double*)[_norient*_m + _n + 1];
-  _h_layers_gradient_w[0] = new (double*)[_norient*_m + _n + 1];
+  _h_layers_w[0] = new double*[_norient*_m + _n + 1];
+  _prev_h_layers_w[0] = new double*[_norient*_m + _n + 1];
+  _h_layers_gradient_w[0] = new double*[_norient*_m + _n + 1];
   
   // Allocate and reset h first layer delta values.
   _delta_h_layers[0] = new double[_lnunits[_r]];
@@ -374,9 +379,9 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::allocIOSPart() {
   for(int k=1; k<_s; k++) {
     // Allocate space for weight&gradient matrixes between layer i-1 and i.
     // Automatically include space for threshold unit in layer i-1
-    _h_layers_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
-    _prev_h_layers_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
-    _h_layers_gradient_w[k] = new (double*)[_lnunits[_r+k-1] + 1];
+    _h_layers_w[k] = new double*[_lnunits[_r+k-1] + 1];
+    _prev_h_layers_w[k] = new double*[_lnunits[_r+k-1] + 1];
+    _h_layers_gradient_w[k] = new double*[_lnunits[_r+k-1] + 1];
 
     // Allocate and reset h layers delta layers values.
     _delta_h_layers[k] = new double[_lnunits[_r+k]];
@@ -690,7 +695,7 @@ template<class HA_Function, class OA_Function, class EMP> RecursiveNN<HA_Functio
   // Get other fundamental parameters from Options class
   std::pair<int, int> indexes = Options::instance()->layers_indices();
   _r = indexes.first; _s = indexes.second;
-  require(_lnunits.size() == _r+_s, "Dim.Error");
+  require(_lnunits.size() == (uint)(_r+_s), "Dim.Error");
   
   // Number of output units of the 
   // transforming part (g MLP ouput function)
@@ -712,8 +717,10 @@ template<class HA_Function, class OA_Function, class EMP> RecursiveNN<HA_Functio
     _ss_tr  = true;
     break;
   default:
-    require(0, "Unknown transduction type")
+    require(0, "Unknown transduction type");
   }
+
+  _problem = Options::instance()->problem();
   
   // Initialize random number generator
   srand(time(0));
@@ -763,6 +770,8 @@ template<class HA_Function, class OA_Function, class EMP>
   require(_n == Options::instance()->input_dim(), "Synchronization Error between RecursiveNN and global parameters: check nodes input dimension");
   require(_v == Options::instance()->domain_outdegree(), "Synchronization Error between RecursiveNN and global parameters: check outdegree");
 
+  _problem = Options::instance()->problem();
+  
   // Then read values of r and s from file
   is >> _r >> _s;
   // Some other necessary controls
@@ -908,8 +917,8 @@ template<class HA_Function, class OA_Function, class EMP>
 
   // Compute output label for each node (if io-isomorf trasd.)
   if(_ios_tr)
-    for(int n=0; n<instance->num_nodes(); ++i)
-      hPropagateInput(instance->node(i));
+    for(uint n=0; n<instance->num_nodes(); ++n)
+      hPropagateInput(instance->node(n));
 
 }
 
@@ -927,8 +936,8 @@ template<class HA_Function, class OA_Function, class EMP>
   DPAG* dpag = instance->orientation(o);
     
   Vertex_d currentNode;
-  VertexId vertex_id = boost::get(boost::vertex_index, *dpag);
-  cEdgeId edge_id = boost::get(boost::edge_index, *dpag);
+  //VertexId vertex_id = boost::get(boost::vertex_index, *dpag);
+  EdgeId edge_id = boost::get(boost::edge_index, *dpag);
   outIter out_i, out_end;
 
   std::vector<int> top_ord = instance->topological_order(o);
@@ -960,11 +969,11 @@ template<class HA_Function, class OA_Function, class EMP>
       // Eliminate control on max outdegree.
       // Ignore edges whose id is greater than max outdegree.
       for(boost::tie(out_i, out_end)=out_edges(currentNode, *dpag); 
-	  out_i!=out_end && edge_id[*out_i] < _v; ++out_i) {
+	  out_i!=out_end && edge_id[*out_i] < (uint)_v; ++out_i) {
 	//require(0<=edge_id[*out_i] && edge_id[*out_i] < _v, "Valence assertion failed!");
 	Node* successor = instance->node(target(*out_i, *dpag));
 
-	for(int i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++)
+	for(uint i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++)
 	  unit_input +=
 	    _layers_w[o][0][i][j] *
 	    successor->_layers_activations[o][_r-1][(i-_n)%_m];
@@ -1079,7 +1088,7 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::hPropagateInput(Node* n) {
     }
 
     // Output label depend also on current node encoded input
-    for(i=_norient*_m; i<_norient*_m + _n; i++)
+    for(int i=_norient*_m; i<_norient*_m + _n; i++)
       unit_input +=
 	_h_layers_w[0][i][j] * n->_encodedInput[i-_norient*_m];
 
@@ -1090,9 +1099,9 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::hPropagateInput(Node* n) {
 
     // calculate units output activation
     if(0 < _s-1) 
-      _h_layers_activations[0][j] = evaluate(haf, unit_input);
+      n->_h_layers_activations[0][j] = evaluate(haf, unit_input);
     else
-      _h_layers_activations[0][j] = evaluate(oaf, unit_input);
+      n->_h_layers_activations[0][j] = evaluate(oaf, unit_input);
   }
 
   for(int k=1; k<_s; k++) {
@@ -1129,8 +1138,8 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::backPropagateError(Instance* in
   // so as to add it to deltas error in representation layers coming
   // from node parents (with respect to f and b ordering)
   if(_ios_tr)
-    for(int n=0; n<instance->num_nodes(); ++i)
-      hBackPropagateError(instance->node(i));
+    for(uint n=0; n<instance->num_nodes(); ++n)
+      hBackPropagateError(instance->node(n));
 
   if(_ss_tr)
     gBackPropagateError(instance);
@@ -1141,25 +1150,27 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::backPropagateError(Instance* in
 }
 
 template<class HA_Function, class OA_Function, class EMP>
-  double RecursiveNN<HA_Function, OA_Function, EMP>::computeError(const Instance* instance) {
+  double RecursiveNN<HA_Function, OA_Function, EMP>::computeError(Instance* instance) {
 
-  double error = .0;
+  propagateStructuredInput(instance);
   
+  double error = .0;
   if(_ss_tr)
     error += computeSSError(instance);
 
   if(_ios_tr)
     error += computeIOSError(instance);
 
+  if(print) std::cout << error << endl;
   return error;
 }
 
 template<class HA_Function, class OA_Function, class EMP>
-  double RecursiveNN<HA_Function, OA_Function, EMP>::computeErrorOnDataset(const DataSet* dataset) {
+  double RecursiveNN<HA_Function, OA_Function, EMP>::computeErrorOnDataset(DataSet* dataset) {
 
   double error = .0;
   for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it)
-    error += computeError(*it);
+    error += computeError(*it, print);
 
   if(_ss_tr && _problem & REGRESSION)
     error /= dataset->size();
@@ -1173,8 +1184,8 @@ template<class HA_Function, class OA_Function, class EMP>
   DPAG* dpag = instance->orientation(o);
 
   Vertex_d currentNode;
-  VertexId vertex_id = boost::get(boost::vertex_index, *dpag);
-  cEdgeId edge_id = boost::get(boost::edge_index, *dpag);
+  //VertexId vertex_id = boost::get(boost::vertex_index, *dpag);
+  EdgeId edge_id = boost::get(boost::edge_index, *dpag);
   outIter out_i, out_end;
 
   std::vector<int> top_ord = instance->topological_order(o);
@@ -1232,7 +1243,7 @@ template<class HA_Function, class OA_Function, class EMP>
 	      _layers_gradient_w[o][k][i][j] -= 
 		_delta_layers[o][k][j] * node->_layers_activations[o][k-1][i];
 	    
-	    _layers_gradient_w[k][_lnunits[k-1]][j] -= _delta_layers[o][k][j];
+	    _layers_gradient_w[o][k][_lnunits[k-1]][j] -= _delta_layers[o][k][j];
 	  }
 	} else {
 	  /*
@@ -1249,11 +1260,11 @@ template<class HA_Function, class OA_Function, class EMP>
 	    // then consider ordered children
 	    // eliminate control on max outdegree: ignore edges whose id is greater than max outdegree.
 	    for(boost::tie(out_i, out_end)=out_edges(currentNode, *dpag); 
-		out_i!=out_end && edge_id[*out_i] < _v; ++out_i) {
+		out_i!=out_end && edge_id[*out_i] < (uint)_v; ++out_i) {
 	      //require(0<=edge_id[*out_i] && edge_id[*out_i] < _v, "Valence assertion failed!");
 	      Node* successor = instance->node(target(*out_i, *dpag));
 	      
-	      for(int i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++)
+	      for(uint i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++)
 		_layers_gradient_w[o][0][i][j] -=
 		  _delta_layers[o][k][j] * successor->_layers_activations[o][_r-1][(i-_n)%_m];
 	      
@@ -1278,11 +1289,11 @@ template<class HA_Function, class OA_Function, class EMP>
 	// then consider ordered children
 	// eliminate control on max outdegree: ignore edges whose id is greater than max outdegree.
 	for(boost::tie(out_i, out_end)=out_edges(currentNode, *dpag); 
-	    out_i!=out_end && edge_id[*out_i] < _v; ++out_i) {
+	    out_i!=out_end && edge_id[*out_i] < (uint)_v; ++out_i) {
 	  //require(0<=edge_id[*out_i] && edge_id[*out_i] < _v, "Valence assertion failed!");
 	  Node* successor = instance->node(target(*out_i, *dpag));
 	  
-	  for(int i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++)
+	  for(uint i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++)
 	    _layers_gradient_w[o][0][i][j] -=
 	      node->_delta_lr[o][j] * successor->_layers_activations[o][_r-1][(i-_n)%_m];
 
@@ -1295,10 +1306,10 @@ template<class HA_Function, class OA_Function, class EMP>
      * of immediate successors of current node t
      */
     for(boost::tie(out_i, out_end)=out_edges(currentNode, *dpag); 
-	out_i!=out_end && edge_id[*out_i] < _v; ++out_i) {
+	out_i!=out_end && edge_id[*out_i] < (uint)_v; ++out_i) {
       Node* successor = instance->node(target(*out_i, *dpag));
       
-      for(int i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++) {
+      for(uint i=_n + edge_id[*out_i]*_m; i<_n + _m*(edge_id[*out_i] + 1); i++) {
 	double sum = 0.0;
 	
 	if(_r == 1)
@@ -1348,15 +1359,15 @@ template<class HA_Function, class OA_Function, class EMP>
    */
   if(_problem & MULTICLASS) {
     float max = -FLT_MAX;
-    for(int i=0; i<outputs.size(); ++i)
+    for(uint i=0; i<outputs.size(); ++i)
       if(max < outputs[i]) max = outputs[i];
       
     float norm_factor = 0.0;
-    for(int j=0; j<outputs.size(); ++j) {
+    for(uint j=0; j<outputs.size(); ++j) {
       outputs[j] = exp(outputs[j] - max);
       norm_factor += outputs[j];
     }
-    for(int j=0; j<outputs.size(); ++j)
+    for(uint j=0; j<outputs.size(); ++j)
       outputs[j] /= norm_factor;
   }
 
@@ -1477,8 +1488,8 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::hBackPropagateError(Node* n) {
   int k = _s-1;
 
   std::vector<float> targets = n->target();
-  std::vector<float> outputs(_h_layers_activations[_s-1],
-			     _h_layers_activations[_s-1]+_lnunits[_r+k]);
+  std::vector<float> outputs(n->_h_layers_activations[_s-1],
+			     n->_h_layers_activations[_s-1]+_lnunits[_r+k]);
   require(targets.size() == outputs.size(), "output dim. error");
 
   /*
@@ -1486,15 +1497,15 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::hBackPropagateError(Node* n) {
    */
   if(_problem & MULTICLASS) {
     float max = -FLT_MAX;
-    for(int i=0; i<outputs.size(); ++i)
+    for(uint i=0; i<outputs.size(); ++i)
       if(max < outputs[i]) max = outputs[i];
       
     float norm_factor = 0.0;
-    for(int j=0; j<outputs.size(); ++j) {
+    for(uint j=0; j<outputs.size(); ++j) {
       outputs[j] = exp(outputs[j] - max);
       norm_factor += outputs[j];
     }
-    for(int j=0; j<outputs.size(); ++j)
+    for(uint j=0; j<outputs.size(); ++j)
       outputs[j] /= norm_factor;
   }
 
@@ -1507,7 +1518,7 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::hBackPropagateError(Node* n) {
   for(int j=0; j<_lnunits[_r+k]; ++j) {
     _delta_h_layers[k][j] =
       (_problem & ~(BINARYCLASS | MULTICLASS)?derivate(oaf, outputs[j]):1.0) *
-      (target[j] - outputs[j]);
+      (targets[j] - outputs[j]);
       
     if(k>0) {
       /*
@@ -1534,7 +1545,7 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::hBackPropagateError(Node* n) {
 	     _delta_h_layers[k][j] * n->_layers_activations[o][_r-1][i-o*_m];
       }
       
-      for(i=_norient*_m; i<_norient*_m + _n; i++)
+      for(int i=_norient*_m; i<_norient*_m + _n; i++)
 	_h_layers_gradient_w[0][i][j] -=
 	   _delta_h_layers[k][j] * n->_encodedInput[i-_norient*_m];
 
@@ -1583,7 +1594,7 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::hBackPropagateError(Node* n) {
 	      _delta_h_layers[k][j] * n->_layers_activations[o][_r-1][i-o*_m];
 	}
       
-	for(i=_norient*_m; i<_norient*_m + _n; i++)
+	for(int i=_norient*_m; i<_norient*_m + _n; i++)
 	  _h_layers_gradient_w[0][i][j] -=
 	    _delta_h_layers[k][j] * n->_encodedInput[i-_norient*_m];
 
@@ -1627,15 +1638,15 @@ template<class HA_Function, class OA_Function, class EMP>
    */
   if(_problem & MULTICLASS) {
     float max = -FLT_MAX;
-    for(int i=0; i<outputs.size(); ++i)
+    for(uint i=0; i<outputs.size(); ++i)
       if(max < outputs[i]) max = outputs[i];
       
     float norm_factor = 0.0;
-    for(int j=0; j<outputs.size(); ++j) {
+    for(uint j=0; j<outputs.size(); ++j) {
       outputs[j] = exp(outputs[j] - max);
       norm_factor += outputs[j];
     }
-    for(int j=0; j<outputs.size(); ++j)
+    for(uint j=0; j<outputs.size(); ++j)
       outputs[j] /= norm_factor;
   }
 
@@ -1662,10 +1673,10 @@ template<class HA_Function, class OA_Function, class EMP>
 
 // Compute Error for a structure in case of IO-Isomorph structural trasduction
 template<class HA_Function, class OA_Function, class EMP>
-  double RecursiveNN<HA_Function, OA_Function, EMP>::computeIOSError(const Instance* instance) {
+  double RecursiveNN<HA_Function, OA_Function, EMP>::computeIOSError(Instance* instance) {
 
   double error = .0;
-  for(int n=0; n<instance->num_nodes(); ++i) {
+  for(uint n=0; n<instance->num_nodes(); ++n) {
     Node* node = instance->node(n);
 
     std::vector<float> targets = node->target();
@@ -1678,15 +1689,15 @@ template<class HA_Function, class OA_Function, class EMP>
      */
     if(_problem & MULTICLASS) {
       float max = -FLT_MAX;
-      for(int i=0; i<outputs.size(); ++i)
+      for(uint i=0; i<outputs.size(); ++i)
 	if(max < outputs[i]) max = outputs[i];
       
       float norm_factor = 0.0;
-      for(int j=0; j<outputs.size(); ++j) {
+      for(uint j=0; j<outputs.size(); ++j) {
 	outputs[j] = exp(outputs[j] - max);
 	norm_factor += outputs[j];
       }
-      for(int j=0; j<outputs.size(); ++j)
+      for(uint j=0; j<outputs.size(); ++j)
 	outputs[j] /= norm_factor;
     }
 
