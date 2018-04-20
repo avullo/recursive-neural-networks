@@ -372,7 +372,7 @@ template<typename T1, typename T2, typename T3, template<typename, typename, typ
   if(_ios_tr) { // proceed with layers of the MLP h map
     new_delta_w = 0.0;
     
-    for(int i=0; i<4*_m + _n + 1; i++) {
+    for(int i=0; i<_norient*_m + _n + 1; i++) {
       for(int j=0; j<_lnunits[_r]; j++) {
 	rnn->_prev_h_layers_w[0][i][j] = rnn->_h_layers_w[0][i][j];
 	new_delta_w =  
