@@ -114,7 +114,7 @@ class Instance {
   
   // super-source transduction, get/set structure target
   int output_dim() const { return _target.size(); }
-  std::vector<float> target() { return _target; }
+  std::vector<float> target() const { return _target; }
   void load_target(const std::vector<float>& target) { _target = target; }
 
   // though used internally, these are made public since other
