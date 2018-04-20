@@ -18,7 +18,7 @@ DataSet::DataSet(const char* fname, bool own): _own(own), _nnodes(0) {
     Instance* instance = parser.read(is);
     require(instance, "Error reading instance");
     push_back(instance);
-    num_total_nodes += instance->num_nodes();
+    _nnodes += instance->num_nodes();
   }
   is.close();
   
