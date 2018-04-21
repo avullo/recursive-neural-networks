@@ -86,6 +86,10 @@ class Node {
   void load_input(const std::vector<float>& input) { _encodedInput = input; }
 
   std::vector<float> target() { return _otargets; }
+  std::vector<float> output() {
+    return std::vector<float>(_h_layers_activations[_s-1],
+			      _h_layers_activations[_s-1]+_lnunits[_r+_s-1]);
+  }
   int output_dim() const { return _otargets.size(); }
   void load_target(const std::vector<float>& otargets) { _otargets = otargets; };
 };
