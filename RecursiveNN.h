@@ -187,7 +187,9 @@ class RecursiveNN {
   // Save learned Network parameters to file
   void saveParameters(const char*);
 
-  // Compute error for a structure
+  // Predict output and compute error for a structure/dataset
+  void   predict(Instance*);
+  void   predict(DataSet*);
   double computeError(Instance*);
   double computeErrorOnDataset(DataSet*);
 
@@ -1147,6 +1149,71 @@ void RecursiveNN<HA_Function, OA_Function, EMP>::backPropagateError(Instance* in
   for(int i=0; i<_norient; ++i)
     backPropOnFoldingPart(instance, i);
 
+}
+
+template<class HA_Function, class OA_Function, class EMP>
+  void RecursiveNN<HA_Function, OA_Function, EMP>::predict(Instance* instance) {
+
+  propagateStructuredInput(instance);
+  
+  if(_ss_tr) {
+    std::vector<float> outputs(_g_layers_activations[_s-1],
+			       _g_layers_activations[_s-1]+_lnunits[_r+_s-1]);
+    
+    /*
+     * apply softmax in case of a multi-class (N>2) classification problem
+     */
+    if(_problem & MULTICLASS) {
+      float max = -FLT_MAX;
+      for(uint i=0; i<outputs.size(); ++i)
+	if(max < outputs[i]) max = outputs[i];
+      
+      float norm_factor = 0.0;
+      for(uint j=0; j<outputs.size(); ++j) {
+	outputs[j] = exp(outputs[j] - max);
+	norm_factor += outputs[j];
+      }
+      for(uint j=0; j<outputs.size(); ++j)
+	outputs[j] /= norm_factor;
+    }
+
+    instance->load_output(outputs);
+  }
+  
+  if(_ios_tr) {
+    for(uint n=0; n<instance->num_nodes(); ++n) {
+      Node* node = instance->node(n);
+      std::vector<float> outputs(node->_h_layers_activations[_s-1],
+				 node->_h_layers_activations[_s-1]+_lnunits[_r+_s-1]);
+      
+      /*
+       * apply softmax in case of a multi-class (N>2) classification problem
+       */
+      if(_problem & MULTICLASS) {
+	float max = -FLT_MAX;
+	for(uint i=0; i<outputs.size(); ++i)
+	  if(max < outputs[i]) max = outputs[i];
+      
+	float norm_factor = 0.0;
+	for(uint j=0; j<outputs.size(); ++j) {
+	  outputs[j] = exp(outputs[j] - max);
+	  norm_factor += outputs[j];
+	}
+	for(uint j=0; j<outputs.size(); ++j)
+	  outputs[j] /= norm_factor;
+      }
+
+      node->load_output(outputs);
+    }    
+  }
+  
+}
+
+template<class HA_Function, class OA_Function, class EMP>
+  void RecursiveNN<HA_Function, OA_Function, EMP>::predict(DataSet* dataset) {
+
+  for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it)
+    predict(*it);
 }
 
 template<class HA_Function, class OA_Function, class EMP>
