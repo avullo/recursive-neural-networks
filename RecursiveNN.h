@@ -1161,7 +1161,6 @@ template<class HA_Function, class OA_Function, class EMP>
   if(_ios_tr)
     error += computeIOSError(instance);
 
-  if(print) std::cout << error << endl;
   return error;
 }
 
@@ -1170,7 +1169,7 @@ template<class HA_Function, class OA_Function, class EMP>
 
   double error = .0;
   for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it)
-    error += computeError(*it, print);
+    error += computeError(*it);
 
   if(_ss_tr && _problem & REGRESSION)
     error /= dataset->size();
