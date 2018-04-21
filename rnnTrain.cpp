@@ -45,8 +45,6 @@ double adjustLearningRate(double curr_error, bool& restore_weights_flag, double&
   return curr_eta;
 }
 
-void computeErrorOnDataset();
-
 void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, ostream& os = cout) {
   // Get important training parameters
   bool onlinelearning = (atoi((Options::instance()->get_parameter("onlinelearning")).c_str()))?true:false;
@@ -107,11 +105,11 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
     }
 
     double error;
-    double error_training_set = rnn->computeErrorOnDataset(trainingSet);
+    double error_training_set = rnn->computeError(trainingSet);
     os << "E_training = " << error_training_set << '\t';
     
     if(validationSet) {
-      double error_validation_set = rnn->computeErrorOnDataset(validationSet);
+      double error_validation_set = rnn->computeError(validationSet);
       error = error_validation_set;
       os << "E_validation = " << error_validation_set;
     } else

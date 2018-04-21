@@ -191,7 +191,7 @@ class RecursiveNN {
   void   predict(Instance*);
   void   predict(DataSet*);
   double computeError(Instance*);
-  double computeErrorOnDataset(DataSet*);
+  double computeError(DataSet*);
 
   // Compute the (squared norm) of the weights, necessary in order
   // to compute the error when regularization is used (weight decay).
@@ -1232,7 +1232,7 @@ template<class HA_Function, class OA_Function, class EMP>
 }
 
 template<class HA_Function, class OA_Function, class EMP>
-  double RecursiveNN<HA_Function, OA_Function, EMP>::computeErrorOnDataset(DataSet* dataset) {
+  double RecursiveNN<HA_Function, OA_Function, EMP>::computeError(DataSet* dataset) {
 
   double error = .0;
   for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it)
