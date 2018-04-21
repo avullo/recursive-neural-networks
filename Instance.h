@@ -30,8 +30,8 @@ class Instance {
   
   
   // learning a super-source transduction,
-  // maintains the target associated to the whole structure
-  std::vector<float> _target;
+  // maintains the target and predicted output associated to the whole structure
+  std::vector<float> _target, _output;
   
   // the list of nodes in the structure, indexed by their index in the graph
   std::vector<Node*> _nodes;
@@ -112,10 +112,12 @@ class Instance {
     _skel = skel;
   }
   
-  // super-source transduction, get/set structure target
+  // super-source transduction, get/set structure target/output
   int output_dim() const { return _target.size(); }
   std::vector<float> target() const { return _target; }
+  std::vector<float> output() const { return _output; }
   void load_target(const std::vector<float>& target) { _target = target; }
+  void load_output(const std::vector<float>& output) { _output = output; }
 
   // though used internally, these are made public since other
   // actors might want to set node features, e.g. instance is
