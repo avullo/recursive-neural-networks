@@ -27,6 +27,7 @@ SOURCES.cpp = \
 	InstanceParser.cpp \
 	Node.cpp \
 	Options.cpp \
+	Performance.cpp \
 	StructuredDomain.cpp
 
 SOURCES.h= \
@@ -39,6 +40,7 @@ SOURCES.h= \
 	InstanceParser.h \
 	Node.h \
 	Options.h \
+	Performance.h \
 	RecurisveNN.h \
 	StructuredDomain.h \
 	require.h
