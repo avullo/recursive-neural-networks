@@ -62,7 +62,7 @@ void Node::deallocHoutputStruct() {
 }
 
 /* Constructor */
-Node::Node(): _norient(num_orientations(Options::instance()->domain())) {
+Node::Node(): _norient(num_orientations(Options::instance()->domain())), _outputs(vector<float>(Options::instance()->output_dim(), .0)) {
   // Get fundamental parameters from Options class
   pair<int, int> indexes = Options::instance()->layers_indices();
   _r = indexes.first;
@@ -83,7 +83,7 @@ Node::Node(): _norient(num_orientations(Options::instance()->domain())) {
 }
 
 /* Copy Constructor */
-Node::Node(const Node& n): _encodedInput(n._encodedInput), _otargets(n._otargets) {
+Node::Node(const Node& n): _encodedInput(n._encodedInput), _otargets(n._otargets), _outputs(n._outputs) {
   pair<int, int> indexes = Options::instance()->layers_indices();
   _r = indexes.first;
   _s = indexes.second;
