@@ -1,6 +1,6 @@
 -- Node
 
-- flexible number of state transition networks requires storing a dynamic set of layer activations
+X flexible number of state transition networks requires storing a dynamic set of layer activations
 
 - must be able to deal with a generic form of node output/target
 
