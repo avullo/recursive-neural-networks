@@ -22,55 +22,64 @@
  * SOFTWARE.
 */
 
-#ifndef _STRUCTURED_DOMAIN_H_
-#define _STRUCTURED_DOMAIN_H_
+#ifndef _MODEL_H_
+#define _MODEL_H_
 
-#include <stdexcept>
+#include "Instance.h"
+#include "RecursiveNN.h"
 
 /*
- *
- * Define aspects related to the representation of structured domains.
- *
+ * Represent a RNN model
  */
 
-/*
-  List supported structured domain types:
+class Model {
+ public:
 
-  - DOAG: general DOAG
-  - SEQUENCE, serial order sequence, i.e. left-to-right sequence
-  - LINEARCHAIN, unordered chain, i.e. bidirectional sequence processing
-  - NARYTREE, n-ary tree
-  - UG, undirected graph, i.e. multiple-orientations processing, assume serial order defined on vertex indices
-  - GRID2D, two-dimensional grid, no orientation
+  Model() {}
+  virtual ~Model() {}
 
-*/
-typedef enum Domain {
-  DOAG = 0, 
-  SEQUENCE,
-  LINEARCHAIN,
-  NARYTREE,
-  UG, 
-  GRID2D, 
-} Domain;
+  virtual void read(const char*) = 0;
+  virtual void write(const char*) = 0;
 
-// Return the number of orientations the RNN must consider
-// to process an instance in the given domain
-int num_orientations(Domain domain)
-  throw(std::logic_error);
+  virtual void predict(Instance*, std::ostream& = cout);
   
-typedef enum Transduction {
-  SUPER_SOURCE = 0,
-  IO_ISOMORPH
-} Transduction;
+ protected:
 
-/*
- * Types of learning problems on a structured domain
- */
-typedef enum {
-  UNDEFINED   = 1<<0,
-  REGRESSION  = 1<<1,
-  BINARYCLASS = 1<<2,
-  MULTICLASS  = 1<<3,
-} Problem;
+  bool _ios_tr, _ss_tr;
+};
 
-#endif // _STRUCTURED_DOMAIN_H_
+class BinaryClassModel: public Model {
+  RecursiveNN<TanH, Sigmoid, MGradientDescent>* _rnn;
+
+ public:
+  ~BinaryClassModel();
+
+  void read(const char*);
+  void write(const char*);
+
+  void predict(Instance*, std::ostream& = cout);
+};
+
+class MultiClassModel: public Model {
+  RecursiveNN<TanH, Linear, MGradientDescent>* _rnn;
+
+ public:
+  ~MultiClassModel();
+
+  void read(const char*);
+  void write(const char*);
+
+  void predict(Instance*, std::ostream& = cout);
+};
+
+class RegressionModel: public Model {
+  RecursiveNN<TanH, Sigmoid, MGradientDescent>* _rnn;
+
+  void read(const char*);
+  void write(const char*);
+
+  void predict(Instance*, std::ostream& = cout);
+};
+
+
+#endif // _MODEL_H_
