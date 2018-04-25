@@ -3,6 +3,8 @@
 #include "Options.h"
 #include "DataSet.h"
 #include "RecursiveNN.h"
+#include "Performance.h"
+
 #include <cstdlib>
 #include <cfloat>
 #include <ctime>
@@ -147,6 +149,26 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
 
 }
 
+void predict(DataSet* dataset, const char* netname, const char* filename) {
+  RecursiveNN<TanH, Sigmoid, MGradientDescent>* rnn =
+    new RecursiveNN<TanH, Sigmoid, MGradientDescent>(netname);
+
+  Performance* p = Performance::factory(Options::instance()->problem());
+  for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it) {
+    rnn->predict(*it);
+    p->update(*it);
+  }
+
+  ofstream os(filename);
+  assure(os, filename);
+  os << p;
+
+  // cout << endl << "***" << endl << rnn->computeError(dataset) << endl << "***" << endl;
+  
+  delete p; p = 0;
+  delete rnn; rnn = 0;
+}
+
 int main(int argc, char* argv[]) {
   setenv("RNNOPTIONTYPE", "train", 1);
 
@@ -203,12 +225,6 @@ int main(int argc, char* argv[]) {
     train(netname, trainingSet, validationSet);
     cout << "RNN model saved to file " << netname << endl;
 
-    /* 
-     * TODO 
-     * predict(netname, trainingSet, "training.pred");
-     * predict(netname, validationSet, "validation.pred");
-     */
-
     delete trainingSet;
     if(validationSet)
       delete validationSet;
@@ -222,10 +238,8 @@ int main(int argc, char* argv[]) {
     cout << "Test set has " << testSet->size() << " instances." << endl
 	 << "Evaluating test set performance using network defined in file " << netname << endl;
 
-    /*
-     * TODO
-     * predict(netname, testSet, "test.pred");
-     */
+    predict(testSet, netname.c_str(), "test.pred");
+    
     delete testSet;
   }
 
