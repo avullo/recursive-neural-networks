@@ -82,11 +82,11 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
   /*
    * read network in if it exists, otherwise make one from scratch
    */
-  RecursiveNN<TanH, Sigmoid, MGradientDescent>* rnn;
+  RecursiveNN<ReLU, Sigmoid, MGradientDescent>* rnn;
 
   if(trainingSet->size()) {
     os << "Creating new network...";
-    rnn = new RecursiveNN<TanH, Sigmoid, MGradientDescent>();
+    rnn = new RecursiveNN<ReLU, Sigmoid, MGradientDescent>();
     os << " Done." << endl;
   } else {
     os << "Need some data to train network, please specify value for the --training-set argument\n";
@@ -174,8 +174,8 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
 }
 
 void predict(DataSet* dataset, const char* netname, const char* filename) {
-  RecursiveNN<TanH, Sigmoid, MGradientDescent>* rnn =
-    new RecursiveNN<TanH, Sigmoid, MGradientDescent>(netname);
+  RecursiveNN<ReLU, Sigmoid, MGradientDescent>* rnn =
+    new RecursiveNN<ReLU, Sigmoid, MGradientDescent>(netname);
 
   Performance* p = Performance::factory(Options::instance()->problem());
   for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it) {
@@ -249,9 +249,13 @@ int main(int argc, char* argv[]) {
     train(netname, trainingSet, validationSet);
     cout << "RNN model saved to file " << netname << endl;
 
+    predict(trainingSet, netname.c_str(), "training.pred");
     delete trainingSet;
-    if(validationSet)
+    
+    if(validationSet) {
+      predict(validationSet, netname.c_str(), "validation.pred");
       delete validationSet;
+    }
     
   } else if(validationSet) {
     cerr << "Cannot use validation set without training set. Skipping training..." << endl;
