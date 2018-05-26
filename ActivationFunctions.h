@@ -86,6 +86,22 @@ class LinearSaturated {
   }
 };
 
+class ReLU {
+ public:
+  double operator()(double x) {
+    if(x>=0)
+      return x;
+    else
+      return 0;
+  }
+
+  double deriv(double x) {
+    if(x>=0)
+      return 1.0;
+    else
+      return 0;
+  }
+};
 
 // We can now define templatized functions
 // to evaluate and derivate the unit activation functions.
