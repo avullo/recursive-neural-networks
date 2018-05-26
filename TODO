@@ -1,67 +1,32 @@
--- Node
+-- Model
 
-X flexible number of state transition networks requires storing a dynamic set of layer activations
+- subclasses hide the particular RNN instantiation
+ - test whether model can be templatised and subclasses inherit with particular template parameters
+   (look at what I've done during my research when implementing an RNN based search in the space of structured instances)
+   - turns out we can have templatised polymorphic implementations (look at tmp.h,cc in root dir)
+ 
+- design patters to build a model
+ - in contrast with the above, the factory could directly instantiate a model with particular parameters according to the problem and the desidered output, so there's no need for inheritance
 
-- must be able to deal with a generic form of node output/target
+-- Activation functions
 
-- rnn class should be friend, so we can hide other elements
-
-- test suite
-
--- DataSet
-
-- read configuration parameter to trigger building structured instances differently according to the domain
-
-- methods to read from input streams depending on the domain
+- provide ReLU activation and derivative (set it to default for the hidden units?)
 
 -- Recursive NNs
 
-- a single, non templatised, implementation able to build and compute with a dynamic set of state transition functions
-  according to the domain
-
-- hidden/output activation functions have their own polymorphic hierarchy with the error minimisation procedure too
-
 - must be able to deal with a generic form of super-source output/target
 
-- test suite
+- weight initialisation: use suggestions from deep learning specialisation
 
-X InstanceParser
-so that Instance contains only relevant code to it, doesn't have to know how parse a format, Instance doesn't have to be passed an input stream,
-the parser is responsible for reading the options to guide the construction, and also to write an Instance to output stream
+-- Optimisation algorithm
 
-X Instance
+- implement gradient descent with momentum using exponentially weighted averages
+  i.e. use term beta and multiply dW by (1-beta) and set the default to a
+  usually found good value (0.9) so as not to tune it and the learning rate as
+  well
+  
+== Long Term == 
+- a single, non templatised, implementation able to build and compute with a dynamic set of state transition functions according to the domain
 
-- NO, should be encapsulated in InstanceParser 
-  constructor from input stream, adapt to different domains by initialising different skeletons
-  domain and tranduction are taken from the global options instance
-
-- NO
-  subclasses to create instances of particular domains, with factory method pattern
-
-- test suite
-
-X DPAG
-
-- stores just useful declarations for dealing with vertex and edge traversals and basic functions,
-  leave graph comparison functions to more specialised applications, e.g. search in the space of
-  graphs with an oracle
-
-- test suite
-
-X Options
-
-- singleton pattern, add options and method as other development proceeds
-
-- read global configuration file/command line arguments (YAML or some other well supported format), look at Boost (reading configs/command line parameters)
-
-- test suite
-
-X StructuredDomain
-
-- declares useful literals for representing domains and transductions
-
-- test suite
-
-X Include Test Suites with compilation target
-
-- use Catch or Boost frameworks
+- hidden/output activation functions have their own polymorphic hierarchy with the error minimisation procedure too
+===============
