@@ -26,7 +26,8 @@
 #include "require.h"
 #include "Options.h"
 #include "DataSet.h"
-#include "RecursiveNN.h"
+#include "Model.h"
+//#include "RecursiveNN.h"
 #include "Performance.h"
 
 #include <cstdlib>
@@ -78,15 +79,17 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
   
   int epochs = atoi((Options::instance()->get_parameter("epochs")).c_str());
   int savedelta = atoi((Options::instance()->get_parameter("savedelta")).c_str());
-  
-  /*
-   * read network in if it exists, otherwise make one from scratch
-   */
-  RecursiveNN<ReLU, Sigmoid, MGradientDescent>* rnn;
 
+  Model* model;
+  
   if(trainingSet->size()) {
     os << "Creating new network...";
-    rnn = new RecursiveNN<ReLU, Sigmoid, MGradientDescent>();
+    try {
+      model = Model::factory();
+    } catch(Model::BadModelCreation e) {
+      cerr << e.what() << endl;
+      exit(EXIT_FAILURE);
+    }
     os << " Done." << endl;
   } else {
     os << "Need some data to train network, please specify value for the --training-set argument\n";
@@ -108,15 +111,15 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
     
     for(DataSet::iterator it=trainingSet->begin(); it!=trainingSet->end(); ++it) {
       // (*it)->print(os);
-      rnn->propagateStructuredInput(*it);
-      rnn->backPropagateError(*it);
+      model->propagateStructuredInput(*it);
+      model->backPropagateError(*it);
 
       /* stochastic (i.e. online) gradient descent */
       if(onlinelearning) {
       	if(restore_weights_flag)
-      	  rnn->restorePrevWeights();
+      	  model->restorePrevWeights();
 	
-      	rnn->adjustWeights(curr_eta, alpha);
+      	model->adjustWeights(curr_eta, alpha);
       	//curr_eta = adjustLearningRate(curr_train_error, restore_weights_flag, alpha);
       }
     }
@@ -124,18 +127,18 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
     /* batch weight update */
     if(!onlinelearning) {
       if(restore_weights_flag)
-    	rnn->restorePrevWeights();
+    	model->restorePrevWeights();
 
-      rnn->adjustWeights(curr_eta, alpha);
+      model->adjustWeights(curr_eta, alpha);
       //curr_eta = adjustLearningRate(curr_train_error, restore_weights_flag, alpha);
     }
 
     double error;
-    double error_training_set = rnn->computeError(trainingSet);
+    double error_training_set = model->computeError(trainingSet);
     os << "E_training = " << error_training_set << '\t';
     
     if(validationSet) {
-      double error_validation_set = rnn->computeError(validationSet);
+      double error_validation_set = model->computeError(validationSet);
       error = error_validation_set;
       os << "E_validation = " << error_validation_set;
     } else
@@ -146,7 +149,7 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
     if(min_error > error) {
       min_error = error;
       min_error_epoch = epoch;
-      rnn->saveParameters(netname.c_str());
+      model->saveParameters(netname.c_str());
     }
     
     // stopping criterion based on error threshold
@@ -161,7 +164,7 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
     if(!(epoch % savedelta)) {
       ostringstream oss;
       oss << netname << '.' << epoch;
-      rnn->saveParameters((oss.str()).c_str());
+      model->saveParameters((oss.str()).c_str());
     }
     
   }
@@ -169,17 +172,22 @@ void train(const string& netname, DataSet* trainingSet, DataSet* validationSet, 
   os << endl << flush;
 
   // deallocate Recursive Neural Network instace
-  delete rnn; rnn = 0;
+  delete model; model = 0;
 
 }
 
-void predict(DataSet* dataset, const char* netname, const char* filename) {
-  RecursiveNN<ReLU, Sigmoid, MGradientDescent>* rnn =
-    new RecursiveNN<ReLU, Sigmoid, MGradientDescent>(netname);
+void predict(DataSet* dataset, const string& netname, const char* filename) {
+  Model* model;
+  try {
+    model = Model::factory(netname);
+  } catch(Model::BadModelCreation e) {
+    cerr << e.what() << endl;
+    exit(EXIT_FAILURE);
+  }
 
   Performance* p = Performance::factory(Options::instance()->problem());
   for(DataSet::iterator it=dataset->begin(); it!=dataset->end(); ++it) {
-    rnn->predict(*it);
+    model->predict(*it);
     p->update(*it);
   }
 
@@ -190,7 +198,7 @@ void predict(DataSet* dataset, const char* netname, const char* filename) {
   // cout << endl << "***" << endl << rnn->computeError(dataset) << endl << "***" << endl;
   
   delete p; p = 0;
-  delete rnn; rnn = 0;
+  delete model; model = 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -249,11 +257,11 @@ int main(int argc, char* argv[]) {
     train(netname, trainingSet, validationSet);
     cout << "RNN model saved to file " << netname << endl;
 
-    predict(trainingSet, netname.c_str(), "training.pred");
+    predict(trainingSet, netname, "training.pred");
     delete trainingSet;
     
     if(validationSet) {
-      predict(validationSet, netname.c_str(), "validation.pred");
+      predict(validationSet, netname, "validation.pred");
       delete validationSet;
     }
     
@@ -266,7 +274,7 @@ int main(int argc, char* argv[]) {
     cout << "Test set has " << testSet->size() << " instances." << endl
 	 << "Evaluating test set performance using network defined in file " << netname << endl;
 
-    predict(testSet, netname.c_str(), "test.pred");
+    predict(testSet, netname, "test.pred");
     
     delete testSet;
   }
