@@ -1,3 +1,24 @@
+-- Activation functions
+
+- investigate whether it's possible to set default for the
+  hidden units template parameter
+
+-- Recursive NNs
+
+- must be able to deal with a generic form of super-source output/target (?!)
+
+- weight initialisation: use suggestions from deep learning specialisation
+
+-- Optimisation algorithm
+
+- implement gradient descent with momentum using exponentially weighted averages
+  i.e. use term beta and multiply dW by (1-beta) and set the default to a
+  usually found good value (0.9) so as not to tune it and the learning rate as
+  well
+
+- implement RMSprop/Adam: they share parameters with momentum strategy, better perhaps
+  to introduce inheritance with protected members
+
 -- Model
 
 - subclasses hide the particular RNN instantiation
@@ -8,25 +29,38 @@
 - design patters to build a model
  - in contrast with the above, the factory could directly instantiate a model with particular parameters according to the problem and the desidered output, so there's no need for inheritance
 
--- Activation functions
+ - factory could be given hidden/output units, minimisation algorithm and (optional) network name parameters as strings
+   in this case, it's probably better to mantain in the RNN the minimisation algorithm as a reference to an abstract class
+   which has itself a factory
 
-- provide ReLU activation and derivative (set it to default for the hidden units?)
+-- Training
 
--- Recursive NNs
+- provide batch/mini-batch/stochastic gradient descent training modes
 
-- must be able to deal with a generic form of super-source output/target
+- implement learning rate decay variants encapsulated as different strategies
 
-- weight initialisation: use suggestions from deep learning specialisation
+-- DataSet
 
--- Optimisation algorithm
+- provide option to split data into training/test/validation subsets
 
-- implement gradient descent with momentum using exponentially weighted averages
-  i.e. use term beta and multiply dW by (1-beta) and set the default to a
-  usually found good value (0.9) so as not to tune it and the learning rate as
-  well
-  
-== Long Term == 
+- provide data in mini-batches
+
+-- Training application
+
+- provide option to split single dataset into training/test/validation subsets
+
+-- Documentation
+
+- readthedocs/some other online doc system
+
+- explain usage with the toy example
+
+== Long Term ==
+
 - a single, non templatised, implementation able to build and compute with a dynamic set of state transition functions according to the domain
 
 - hidden/output activation functions have their own polymorphic hierarchy with the error minimisation procedure too
+
+- (inverted) drop-out regularisation
+
 ===============
