@@ -30,6 +30,7 @@
 #include "ActivationFunctions.h"
 #include "ErrorMinimizationProcedure.h"
 #include "DataSet.h"
+#include "Model.h"
 
 #include <ctime>
 #include <cfloat>
@@ -64,7 +65,7 @@ double nrnd01() {
 */
 
 template<class HA_Function, class OA_Function, class EMP>
-class RecursiveNN {
+  class RecursiveNN: public Model {
   
   bool _ss_tr; // implement a super-source transduction
   bool _ios_tr; // implement an io-isomorf structural trasduction

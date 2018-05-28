@@ -26,60 +26,82 @@
 #define _MODEL_H_
 
 #include "Instance.h"
-#include "RecursiveNN.h"
+#include "DataSet.h"
+
+#include <string>
+#include <stdexcept>
 
 /*
- * Represent a RNN model
+ * Represent a RNN model using an abstract interface
+ * to leave the client code unaware of of the various
+ * template options
+ *
+ * A way to combine static/dynamic polymorphism, see:
+ * https://stackoverflow.com/questions/1213366/can-template-polymorphism-be-used-in-place-of-oo-polymorphism
  */
 
 class Model {
+  
  public:
+  
+  virtual void propagateStructuredInput(Instance*) = 0;
+  virtual void backPropagateError(Instance*) = 0;
 
-  Model() {}
+  virtual void adjustWeights(float = .0, float = .0, float = .0) = 0;
+  virtual void restorePrevWeights() = 0;
+
+  virtual void saveParameters(const char*) = 0;
+
+  virtual void predict(Instance*) = 0;
+  virtual void predict(DataSet*) = 0;
+
+  virtual double computeError(Instance*) = 0;
+  virtual double computeError(DataSet*) = 0;
+
   virtual ~Model() {}
 
-  virtual void read(const char*) = 0;
-  virtual void write(const char*) = 0;
+  class BadModelCreation: public std::logic_error {
+  public:
+  BadModelCreation(std::string message): logic_error("Cannot create model: " + message) {}
+  };
 
-  virtual void predict(Instance*, std::ostream& = cout);
-  
- protected:
-
-  bool _ios_tr, _ss_tr;
+  static Model* factory(const std::string& = "")
+    throw(BadModelCreation);
 };
 
-class BinaryClassModel: public Model {
-  RecursiveNN<TanH, Sigmoid, MGradientDescent>* _rnn;
 
- public:
-  ~BinaryClassModel();
+/* class BinaryClassModel: public Model { */
+/*   RecursiveNN<TanH, Sigmoid, MGradientDescent>* _rnn; */
 
-  void read(const char*);
-  void write(const char*);
+/*  public: */
+/*   ~BinaryClassModel(); */
 
-  void predict(Instance*, std::ostream& = cout);
-};
+/*   void read(const char*); */
+/*   void write(const char*); */
 
-class MultiClassModel: public Model {
-  RecursiveNN<TanH, Linear, MGradientDescent>* _rnn;
+/*   void predict(Instance*, std::ostream& = cout); */
+/* }; */
 
- public:
-  ~MultiClassModel();
+/* class MultiClassModel: public Model { */
+/*   RecursiveNN<TanH, Linear, MGradientDescent>* _rnn; */
 
-  void read(const char*);
-  void write(const char*);
+/*  public: */
+/*   ~MultiClassModel(); */
 
-  void predict(Instance*, std::ostream& = cout);
-};
+/*   void read(const char*); */
+/*   void write(const char*); */
 
-class RegressionModel: public Model {
-  RecursiveNN<TanH, Sigmoid, MGradientDescent>* _rnn;
+/*   void predict(Instance*, std::ostream& = cout); */
+/* }; */
 
-  void read(const char*);
-  void write(const char*);
+/* class RegressionModel: public Model { */
+/*   RecursiveNN<TanH, Sigmoid, MGradientDescent>* _rnn; */
 
-  void predict(Instance*, std::ostream& = cout);
-};
+/*   void read(const char*); */
+/*   void write(const char*); */
+
+/*   void predict(Instance*, std::ostream& = cout); */
+/* }; */
 
 
 #endif // _MODEL_H_

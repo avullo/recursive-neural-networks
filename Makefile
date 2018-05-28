@@ -10,21 +10,22 @@ INCLUDES = -I/usr/include/boost
 WARNINGS = -Wall
 CODEOPT  = # -ftemplate-depth-30 -fpermissive -O3
 DEBUG    = -g
-CXXFLAGS = $(DEFINES) $(WARNINGS)
-CPPFLAGS = $(INCLUDES) $(CODEOPT) $(DEBUG)
+CPPFLAGS = $(DEFINES)
+CXXFLAGS = $(WARNINGS) $(INCLUDES) $(CODEOPT) $(DEBUG)
 PROFILE  = # -pg
 LDFLAGS  =
 LIBS     = 
 LD       = $(CXX)
 
 .cpp.o:
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(PROFILE) -c $< -o $@
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(PROFILE) -c $< -o $@
 
 SOURCES.cpp = \
 	DPAG.cpp \
 	DataSet.cpp \
 	Instance.cpp \
 	InstanceParser.cpp \
+	Model.cpp \
 	Node.cpp \
 	Options.cpp \
 	Performance.cpp \
@@ -38,6 +39,7 @@ SOURCES.h= \
 	General.h \
 	Instance.h \
 	InstanceParser.h \
+	Model.h \
 	Node.h \
 	Options.h \
 	Performance.h \
